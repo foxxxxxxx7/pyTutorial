@@ -1,60 +1,144 @@
+import os.path
 from tkinter import *
+from tkinter import filedialog, colorchooser, font
+from tkinter.filedialog import *
+from tkinter.messagebox import *
 
-class CalculatorButton(Button):
-    def __init__(self, parent, text, row, column, command, width=9, height=4, font=35):
-        super().__init__(parent, text=text, width=width, height=height, font=font, command=command)
-        self.grid(row=row, column=column)
 
-def button_press(num):
-    global equation_text
-    equation_text += str(num)
-    equation_label.set(equation_text)
+def change_colour():
+    colour = colorchooser.askcolor(title="Choose your colour")
+    text_area.config(fg=colour[1])
 
-def equals():
-    global equation_text
+
+def change_font(*args):
+    text_area.config(font=(font_name.get(), size_box.get()))
+
+
+def new_file():
+    window.title("Untitled")
+    text_area.delete(1.0, END)
+
+
+def open_file():
+    file = askopenfilename(defaultextension=".txt", file=[("All Files", "*.*"), ("Text Documents", "*.txt")])
     try:
-        total = str(eval(equation_text))
-        equation_label.set(total)
-        equation_text = total
-    except SyntaxError:
-        equation_label.set("Syntax Error")
-        equation_text = ""
-    except ZeroDivisionError:
-        equation_label.set("Divide by Zero? eh?")
-        equation_text = ""
+        window.title(os.path.basename(file))
+        text_area.delete(1.0, END)
 
-def clear():
-    global equation_text
-    equation_label.set("")
-    equation_text = ""
+        file = open(file, "r")
+
+        text_area.insert(1.0, file.read())
+
+    except Exception:
+        print("Couldn't read file")
+
+    finally:
+        file.close()
+
+
+def save_file():
+    file = filedialog.asksaveasfilename(initialfile="untitled.txt", defaultextension=".txt",
+                                        filetypes=[("All Files", "*.*"), ("Text Documents", "*.txt")])
+
+    if file is None:
+        return
+
+    else:
+        try:
+            window.title(os.path.basename(file))
+            file = open(file, "w")
+
+            file.write(text_area.get(1.0, END))
+
+        except Exception:
+            print("Couldn't save file")
+
+        finally:
+            file.close()
+
+
+def cut():
+    text_area.event_generate("<<Cut>>")
+
+
+def copy():
+    text_area.event_generate("<<Copy>>")
+
+
+def paste():
+    text_area.event_generate("<<Paste>>")
+
+
+def about():
+    showinfo("About this programme", "This is a simple text editor")
+
+
+def quit():
+    window.destroy()
+
 
 window = Tk()
-window.title("Calculator")
-window.geometry("500x500")
+window.title("Text editor programme")
+file = None
 
-equation_text = ""
-equation_label = StringVar()
+WINDOW_WIDTH = 500
+WINDOW_HEIGHT = 500
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
 
-label = Label(window, textvariable=equation_label, font=("consolas", 20), bg="light grey", width=24, height=2)
-label.pack()
+x = int((screen_width / 2) - (WINDOW_WIDTH / 2))
+y = int((screen_height / 2) - (WINDOW_HEIGHT / 2))
+
+window.geometry("{}x{}+{}+{}".format(WINDOW_WIDTH, WINDOW_HEIGHT, x, y))
+
+font_name = StringVar(window)
+font_name.set("Arial")
+
+font_size = StringVar(window)
+font_size.set("25")
+
+text_area = Text(window, font=(font_name.get(), font_size.get()))
+
+scroll_bar = Scrollbar(text_area)
+
+window.grid_rowconfigure(0, weight=1)
+window.grid_columnconfigure(0, weight=1)
+text_area.grid(sticky=N + E + S + W)
+
+scroll_bar.pack(side=RIGHT, fill=Y)
+text_area.config(yscrollcommand=scroll_bar.set)
 
 frame = Frame(window)
-frame.pack()
+frame.grid()
 
-buttons = [
-    ('1', 0, 0), ('2', 0, 1), ('3', 0, 2), ('+', 0, 3),
-    ('4', 1, 0), ('5', 1, 1), ('6', 1, 2), ('-', 1, 3),
-    ('7', 2, 0), ('8', 2, 1), ('9', 2, 2), ('*', 2, 3),
-    ('0', 3, 0), ('.', 3, 1), ('=', 3, 2), ('/', 3, 3),
-]
+colour_button = Button(frame, text="colour", command=change_colour, )
+colour_button.grid(row=0, column=0)
 
-for (text, row, column) in buttons:
-    if text == '=':
-        CalculatorButton(frame, text, row, column, command=equals)
-    else:
-        CalculatorButton(frame, text, row, column, command=lambda t=text: button_press(t))
+font_box = OptionMenu(frame, font_name, *font.families(), command=change_font)
+font_box.grid(row=0, column=1)
 
-button_clear = Button(window, text="Clear", height=4, width=19, font=35, command=clear)
-button_clear.pack()
+size_box = Spinbox(frame, from_=1, to=100, textvariable=font_size, command=change_font)
+size_box.grid(row=0, column=2)
+
+menu_bar = Menu(window)
+window.config(menu=menu_bar)
+
+file_menu = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="File", menu=file_menu)
+file_menu.add_command(label="New", command=new_file)
+file_menu.add_command(label="Open", command=open_file)
+file_menu.add_command(label="Save", command=save_file)
+file_menu.add_separator()
+file_menu.add_command(label="Exit", command=quit)
+
+edit_menu = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Edit", menu=edit_menu)
+edit_menu.add_command(label="Cut", command=cut)
+edit_menu.add_command(label="Copy", command=copy)
+edit_menu.add_command(label="Paste", command=paste)
+
+help_menu = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Help", menu=help_menu)
+help_menu.add_command(label="About", command=about)
 
 window.mainloop()
