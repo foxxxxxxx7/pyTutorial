@@ -1,17 +1,16 @@
-import os.path
+import os
 from tkinter import *
-from tkinter import filedialog, colorchooser, font
-from tkinter.filedialog import *
-from tkinter.messagebox import *
+from tkinter import filedialog, colorchooser, font, messagebox
 
 
 def change_colour():
-    colour = colorchooser.askcolor(title="Choose your colour")
-    text_area.config(fg=colour[1])
+    colour = colorchooser.askcolor(title="Choose your colour")[1]
+    if colour:
+        text_area.config(fg=colour)
 
 
 def change_font(*args):
-    text_area.config(font=(font_name.get(), size_box.get()))
+    text_area.config(font=(font_name.get(), font_size.get()))
 
 
 def new_file():
@@ -20,41 +19,22 @@ def new_file():
 
 
 def open_file():
-    file = askopenfilename(defaultextension=".txt", file=[("All Files", "*.*"), ("Text Documents", "*.txt")])
-    try:
-        window.title(os.path.basename(file))
-        text_area.delete(1.0, END)
-
-        file = open(file, "r")
-
-        text_area.insert(1.0, file.read())
-
-    except Exception:
-        print("Couldn't read file")
-
-    finally:
-        file.close()
+    file_path = filedialog.askopenfilename(defaultextension=".txt",
+                                           filetypes=[("All Files", "*.*"), ("Text Documents", "*.txt")])
+    if file_path:
+        with open(file_path, "r") as file:
+            window.title(os.path.basename(file_path))
+            text_area.delete(1.0, END)
+            text_area.insert(1.0, file.read())
 
 
 def save_file():
-    file = filedialog.asksaveasfilename(initialfile="untitled.txt", defaultextension=".txt",
-                                        filetypes=[("All Files", "*.*"), ("Text Documents", "*.txt")])
-
-    if file is None:
-        return
-
-    else:
-        try:
-            window.title(os.path.basename(file))
-            file = open(file, "w")
-
+    file_path = filedialog.asksaveasfilename(initialfile="untitled.txt", defaultextension=".txt",
+                                             filetypes=[("All Files", "*.*"), ("Text Documents", "*.txt")])
+    if file_path:
+        with open(file_path, "w") as file:
+            window.title(os.path.basename(file_path))
             file.write(text_area.get(1.0, END))
-
-        except Exception:
-            print("Couldn't save file")
-
-        finally:
-            file.close()
 
 
 def cut():
@@ -70,56 +50,46 @@ def paste():
 
 
 def about():
-    showinfo("About this programme", "This is a simple text editor")
+    messagebox.showinfo("About this program", "This is a simple text editor")
 
 
 def quit():
     window.destroy()
 
 
+# Initialize the main window
 window = Tk()
-window.title("Text editor programme")
-file = None
+window.title("Text Editor")
 
 WINDOW_WIDTH = 500
 WINDOW_HEIGHT = 500
 screen_width = window.winfo_screenwidth()
 screen_height = window.winfo_screenheight()
-
 x = int((screen_width / 2) - (WINDOW_WIDTH / 2))
 y = int((screen_height / 2) - (WINDOW_HEIGHT / 2))
+window.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{x}+{y}")
 
-window.geometry("{}x{}+{}+{}".format(WINDOW_WIDTH, WINDOW_HEIGHT, x, y))
+font_name = StringVar(value="Arial")
+font_size = StringVar(value="25")
 
-font_name = StringVar(window)
-font_name.set("Arial")
-
-font_size = StringVar(window)
-font_size.set("25")
-
+# Text area setup
 text_area = Text(window, font=(font_name.get(), font_size.get()))
-
-scroll_bar = Scrollbar(text_area)
-
-window.grid_rowconfigure(0, weight=1)
-window.grid_columnconfigure(0, weight=1)
 text_area.grid(sticky=N + E + S + W)
 
-scroll_bar.pack(side=RIGHT, fill=Y)
+# Scrollbar setup
+scroll_bar = Scrollbar(text_area, command=text_area.yview)
 text_area.config(yscrollcommand=scroll_bar.set)
+scroll_bar.pack(side=RIGHT, fill=Y)
 
+# Toolbar setup
 frame = Frame(window)
 frame.grid()
 
-colour_button = Button(frame, text="colour", command=change_colour, )
-colour_button.grid(row=0, column=0)
+Button(frame, text="Color", command=change_colour).grid(row=0, column=0)
+OptionMenu(frame, font_name, *font.families(), command=change_font).grid(row=0, column=1)
+Spinbox(frame, from_=1, to=100, textvariable=font_size, command=change_font).grid(row=0, column=2)
 
-font_box = OptionMenu(frame, font_name, *font.families(), command=change_font)
-font_box.grid(row=0, column=1)
-
-size_box = Spinbox(frame, from_=1, to=100, textvariable=font_size, command=change_font)
-size_box.grid(row=0, column=2)
-
+# Menu setup
 menu_bar = Menu(window)
 window.config(menu=menu_bar)
 
@@ -140,5 +110,8 @@ edit_menu.add_command(label="Paste", command=paste)
 help_menu = Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="Help", menu=help_menu)
 help_menu.add_command(label="About", command=about)
+
+window.grid_rowconfigure(0, weight=1)
+window.grid_columnconfigure(0, weight=1)
 
 window.mainloop()
