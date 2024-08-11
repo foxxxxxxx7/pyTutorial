@@ -1,96 +1,41 @@
 from tkinter import *
 import random
-def next_turn(row, column):
 
+def next_turn(row, column):
     global player
 
-    if buttons[row][column]["text"] == "" and check_winner() is False:
+    if buttons[row][column]["text"] == "" and not check_winner():
+        buttons[row][column]["text"] = player
 
-        if player == players[0]:
-
-            buttons[row][column]["text"] = player
-
-            if check_winner() is False:
-                player = players[1]
-                label.config(text=(players[1]+" turn"))
-
-            elif check_winner() is True:
-                label.config(text=(players[0] + " wins"))
-
-            elif check_winner() == "Tie":
-                label.config(text=("Tie"))
-
+        if check_winner():
+            label.config(text=f"{player} wins")
+        elif not empty_spaces():
+            label.config(text="Tie")
+            color_all_buttons("yellow")
         else:
-
-            buttons[row][column]["text"] = player
-
-            if check_winner() is False:
-                player = players[0]
-                label.config(text=(players[0]+" turn"))
-
-            elif check_winner() is True:
-                label.config(text=(players[1] + " wins"))
-
-            elif check_winner() == "Tie":
-                label.config(text=("Tie"))
-
+            player = players[1] if player == players[0] else players[0]
+            label.config(text=f"{player} turn")
 
 def check_winner():
-
-    for row in range(3):
-        if buttons[row][0]["text"] == buttons[row][1]["text"] == buttons[row][2]["text"] != "":
-            buttons[row][0].config(bg="green")
-            buttons[row][1].config(bg="green")
-            buttons[row][2].config(bg="green")
+    for trio in winning_combos:
+        if buttons[trio[0]][trio[1]]["text"] == buttons[trio[2]][trio[3]]["text"] == buttons[trio[4]][trio[5]]["text"] != "":
+            for i in range(0, 6, 2):
+                buttons[trio[i]][trio[i+1]].config(bg="green")
             return True
+    return False
 
-    for column in range(3):
-        if buttons[0][column]["text"] == buttons[1][column]["text"] == buttons[2][column]["text"] != "":
-            buttons[0][column].config(bg="green")
-            buttons[1][column].config(bg="green")
-            buttons[2][column].config(bg="green")
-            return True
-
-    if buttons[0][0]["text"] == buttons[1][1]["text"] == buttons[2][2]["text"] != "":
-        buttons[0][0].config(bg="green")
-        buttons[1][1].config(bg="green")
-        buttons[2][2].config(bg="green")
-        return True
-
-    elif buttons[0][2]["text"] == buttons[1][1]["text"] == buttons[2][0]["text"] != "":
-        buttons[0][2].config(bg="green")
-        buttons[1][1].config(bg="green")
-        buttons[2][0].config(bg="green")
-        return True
-
-    elif empty_spaces() is False:
-        for row in range(3):
-            for column in range(3):
-                buttons[row][column].config(bg="yellow")
-        return "Tie"
-
-    else:
-        return False
 def empty_spaces():
+    return any(buttons[row][column]["text"] == "" for row in range(3) for column in range(3))
 
-    spaces = 9
-
+def color_all_buttons(color):
     for row in range(3):
         for column in range(3):
-            if buttons[row][column]["text"] != "":
-                spaces -= 1
-
-    if spaces == 0:
-        return False
-    else:
-        return True
+            buttons[row][column].config(bg=color)
 
 def new_game():
     global player
-
     player = random.choice(players)
-
-    label.config(text=player+ " turn")
+    label.config(text=f"{player} turn")
 
     for row in range(3):
         for column in range(3):
@@ -98,25 +43,29 @@ def new_game():
 
 window = Tk()
 window.title("Tic-Tac-Toe")
-players = ["x","o"]
+players = ["x", "o"]
 player = random.choice(players)
-buttons = [[0, 0, 0],
-           [0, 0, 0],
-           [0, 0, 0]]
+buttons = [[0] * 3 for _ in range(3)]
 
-label = Label(text=player + " turn", font=("consolas", 40))
+label = Label(text=f"{player} turn", font=("consolas", 40))
 label.pack(side="top")
 
-reset_button = Button(text= "Reset", font=("consolas", 20), command=new_game)
+reset_button = Button(text="Reset", font=("consolas", 20), command=new_game)
 reset_button.pack(side="top")
 
 frame = Frame(window)
 frame.pack()
 
+winning_combos = [
+    (0, 0, 0, 1, 0, 2), (1, 0, 1, 1, 1, 2), (2, 0, 2, 1, 2, 2),  # rows
+    (0, 0, 1, 0, 2, 0), (0, 1, 1, 1, 2, 1), (0, 2, 1, 2, 2, 2),  # columns
+    (0, 0, 1, 1, 2, 2), (0, 2, 1, 1, 2, 0)  # diagonals
+]
+
 for row in range(3):
     for column in range(3):
-        buttons[row][column] = Button(frame, text="",font=('consolas',40), width=5, height=2,
-                                      command=lambda row = row, column = column: next_turn(row,column))
-        buttons[row][column].grid(row=row,column=column)
+        buttons[row][column] = Button(frame, text="", font=('consolas', 40), width=5, height=2,
+                                      command=lambda row=row, column=column: next_turn(row, column))
+        buttons[row][column].grid(row=row, column=column)
 
 window.mainloop()
