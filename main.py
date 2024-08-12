@@ -1,71 +1,166 @@
-from tkinter import *
 import random
+from tkinter import *
 
-def next_turn(row, column):
-    global player
+GAME_WIDTH = 700
+GAME_HEIGHT = 550
+SPEED = 50
+SPACE_SIZE = 25
+BODY_PARTS = 3
+SNAKE_COLOR = "#0000FF"
+FOOD_COLOR = "#00FF00"
+BACKGROUND_COLOR = "#000000"
 
-    if buttons[row][column]["text"] == "" and not check_winner():
-        buttons[row][column]["text"] = player
 
-        if check_winner():
-            label.config(text=f"{player} wins")
-        elif not empty_spaces():
-            label.config(text="Tie")
-            color_all_buttons("yellow")
-        else:
-            player = players[1] if player == players[0] else players[0]
-            label.config(text=f"{player} turn")
+class Snake:
+    def __init__(self):
+        self.body_size = BODY_PARTS
+        self.coordinates = []
+        self.squares = []
 
-def check_winner():
-    for trio in winning_combos:
-        if buttons[trio[0]][trio[1]]["text"] == buttons[trio[2]][trio[3]]["text"] == buttons[trio[4]][trio[5]]["text"] != "":
-            for i in range(0, 6, 2):
-                buttons[trio[i]][trio[i+1]].config(bg="green")
+        for i in range(0, BODY_PARTS):
+            self.coordinates.append([0, 0])
+
+        for x, y in self.coordinates:
+            square = canvas.create_rectangle(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR, tag="snake")
+            self.squares.append(square)
+
+
+class Food:
+
+    def __init__(self):
+        x = random.randint(0, int(GAME_WIDTH / SPACE_SIZE) - 1) * SPACE_SIZE
+        y = random.randint(0, int(GAME_HEIGHT / SPACE_SIZE) - 1) * SPACE_SIZE
+
+        self.coordinates = [x, y]
+
+        canvas.create_oval(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=FOOD_COLOR, tag="food")
+
+
+def next_turn(snake, food):
+    x, y = snake.coordinates[0]
+
+    if direction == "up":
+        y -= SPACE_SIZE
+    elif direction == "down":
+        y += SPACE_SIZE
+    elif direction == "left":
+        x -= SPACE_SIZE
+    elif direction == "right":
+        x += SPACE_SIZE
+
+    snake.coordinates.insert(0, (x, y))
+
+    square = canvas.create_rectangle(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR)
+
+    snake.squares.insert(0, square)
+
+    if x == food.coordinates[0] and y == food.coordinates[1]:
+
+        global score
+
+        score += 1
+
+        label.config(text="Score:{}".format(score))
+
+        canvas.delete("food")
+
+        food = Food()
+
+    else:
+        del snake.coordinates[-1]
+
+        canvas.delete(snake.squares[-1])
+
+        del snake.squares[-1]
+
+    if check_collisions(snake):
+        game_over()
+
+    else:
+        window.after(SPEED, next_turn, snake, food)
+
+
+def change_direction(new_direction):
+    global direction
+
+    if new_direction == "left":
+        if direction != "right":
+            direction = new_direction
+    elif new_direction == "right":
+        if direction != "left":
+            direction = new_direction
+    elif new_direction == "up":
+        if direction != "down":
+            direction = new_direction
+    elif new_direction == "down":
+        if direction != "up":
+            direction = new_direction
+
+def check_collisions(snake):
+
+    x, y = snake.coordinates[0]
+
+    if x < 0 or x >= GAME_WIDTH:
+        return True
+
+    elif y < 0 or y >= GAME_HEIGHT:
+        return True
+
+    for body_part in snake.coordinates[1:]:
+        if x == body_part[0] and y == body_part[1]:
             return True
+
     return False
 
-def empty_spaces():
-    return any(buttons[row][column]["text"] == "" for row in range(3) for column in range(3))
+def game_over():
 
-def color_all_buttons(color):
-    for row in range(3):
-        for column in range(3):
-            buttons[row][column].config(bg=color)
+    canvas.delete(ALL)
+    canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2, font=("Impact", 100), text= "GAME OVER", fill = "red", tag = "game over")
 
-def new_game():
-    global player
-    player = random.choice(players)
-    label.config(text=f"{player} turn")
-
-    for row in range(3):
-        for column in range(3):
-            buttons[row][column].config(text="", bg="#F0F0F0")
 
 window = Tk()
-window.title("Tic-Tac-Toe")
-players = ["x", "o"]
-player = random.choice(players)
-buttons = [[0] * 3 for _ in range(3)]
+window.title("Snake")
+window.resizable(False, False)
 
-label = Label(text=f"{player} turn", font=("consolas", 40))
-label.pack(side="top")
+score = 0
+direction = "down"
 
-reset_button = Button(text="Reset", font=("consolas", 20), command=new_game)
-reset_button.pack(side="top")
+label = Label(window, text="Score:{}".format(score), font=("Impact", 40))
+label.pack()
 
-frame = Frame(window)
-frame.pack()
+canvas = Canvas(window, bg=BACKGROUND_COLOR, height=GAME_HEIGHT, width=GAME_WIDTH)
+canvas.pack()
 
-winning_combos = [
-    (0, 0, 0, 1, 0, 2), (1, 0, 1, 1, 1, 2), (2, 0, 2, 1, 2, 2),  # rows
-    (0, 0, 1, 0, 2, 0), (0, 1, 1, 1, 2, 1), (0, 2, 1, 2, 2, 2),  # columns
-    (0, 0, 1, 1, 2, 2), (0, 2, 1, 1, 2, 0)  # diagonals
-]
+window.update()
 
-for row in range(3):
-    for column in range(3):
-        buttons[row][column] = Button(frame, text="", font=('consolas', 40), width=5, height=2,
-                                      command=lambda row=row, column=column: next_turn(row, column))
-        buttons[row][column].grid(row=row, column=column)
+window_width = window.winfo_width()
+window_height = window.winfo_height()
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
+
+x = int((screen_width / 2 - window_width / 2))
+y = int((screen_height / 2 - window_height / 2))
+
+window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+window.bind("<Left>", lambda event: change_direction("left"))
+window.bind("<Right>", lambda event: change_direction("right"))
+window.bind("<Up>", lambda event: change_direction("up"))
+window.bind("<Down>", lambda event: change_direction("down"))
+
+window.bind("<a>", lambda event: change_direction("left"))
+window.bind("<d>", lambda event: change_direction("right"))
+window.bind("<w>", lambda event: change_direction("up"))
+window.bind("<s>", lambda event: change_direction("down"))
+
+window.bind("<A>", lambda event: change_direction("left"))
+window.bind("<D>", lambda event: change_direction("right"))
+window.bind("<W>", lambda event: change_direction("up"))
+window.bind("<S>", lambda event: change_direction("down"))
+
+snake = Snake()
+food = Food()
+
+next_turn(snake, food)
 
 window.mainloop()
