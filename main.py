@@ -1,13 +1,23 @@
-import time
+foods = []
+prices = []
+total = 0
 
-my_time = int(input("Enter time in seconds: "))
+while True:
+    food = input("Enter the food you want to buy (q to Quit): ")
+    if food.lower() == "q":
+        break
+    else:
+        price = float(input(f"Enter the price of a {food}: €"))
+        foods.append(food)
+        prices.append(price)
 
-for x in range(my_time, 0, -1):
-    seconds = x % 60
-    minutes = int(x / 60) % 60
-    hours = int(x / 3600)
-    print(f"{hours:02}:{minutes:02}:{seconds:02}")
-    time.sleep(1)
+print("------ YOUR BASKET ------")
 
-print("Finished")
+for food in foods:
+    print(food, end= " ")
 
+for price in prices:
+    total += price
+
+print()
+print(f"Your total is : €{total}")
