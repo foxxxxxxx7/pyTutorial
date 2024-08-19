@@ -1,40 +1,33 @@
-menu = {
-    "pizza": 5.00,
-    "popcorn": 3.00,
-    "chocolate": 2.00,
-    "sweets": 1.50,
-    "soda": 2.00,
-    "water": 1.00,
-    "nachos": 3.50,
-    "chips": 4.00
-}
+import random
 
-def print_menu(menu):
-    print("------------- MENU ---------------")
-    for item, price in menu.items():
-        print(f"{item:10}: €{price:.2f}")
-    print("----------------------------------")
+lowest_number = 1
+highest_number = 100
+answer = random.randint(lowest_number, highest_number)
+guesses = 0
+is_running = True
 
-def take_order(menu):
-    cart = []
-    while (food := input("Select an item(q to Quit): ").lower()) != "q":
-        if food in menu:
-            cart.append(food)
+print("Python Number Guessing Game")
+print(f"Select a number between {lowest_number} and {highest_number}")
+
+while is_running:
+    guess = input("Enter your guess: ")
+
+    if guess.isdigit():
+        guess = int(guess)
+        guesses += 1
+
+        if guess < lowest_number or guess > highest_number:
+            print("Invalid guess: out of range")
+            print(f"Select a number between {lowest_number} and {highest_number}")
+        elif guess < answer:
+            print("Too low, try again")
+        elif guess > answer:
+            print("Too high, try again")
         else:
-            print("Item not on the menu. Please try again.")
-    return cart
+            print(f"CORRECT! {answer} is correct")
+            print(f"It took {guesses} guesses")
+            is_running = False
 
-def print_order(cart, menu):
-    total = sum(menu[item] for item in cart)
-    print("------------- ORDER ---------------")
-    print(" ".join(cart))
-    print(f"Total is: €{total:.2f}")
-    print("----------------------------------")
-
-def main():
-    print_menu(menu)
-    cart = take_order(menu)
-    print_order(cart, menu)
-
-if __name__ == "__main__":
-    main()
+    else:
+        print("Invalid guess: NaN")
+        print(f"Select a number between {lowest_number} and {highest_number}")
