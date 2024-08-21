@@ -1,30 +1,22 @@
 import random
 import string
 
+# Generate key and character set
 chars = string.punctuation + string.digits + string.ascii_letters + " "
-chars = list(chars)
-key = chars.copy()
+key = random.sample(chars, len(chars))  # This replaces the need to shuffle a copy
 
-random.shuffle(key)
+# Encryption function
+def encrypt_decrypt(text, from_set, to_set):
+    return ''.join(to_set[from_set.index(char)] for char in text)
 
-#ENCRYPT
+# Encrypt
 plain_text = input("Enter a message to encrypt: ")
-cipher_text = ""
-
-for letter in plain_text:
-    index = chars.index(letter)
-    cipher_text += key[index]
-
+cipher_text = encrypt_decrypt(plain_text, chars, key)
 print(f"original message: {plain_text}")
 print(f"encrypted message: {cipher_text}")
 
-#DECRYPT
+# Decrypt
 cipher_text = input("Enter a message to decrypt: ")
-plain_text = ""
-
-for letter in cipher_text:
-    index = key.index(letter)
-    plain_text += chars[index]
-
+plain_text = encrypt_decrypt(cipher_text, key, chars)
 print(f"encrypted message: {cipher_text}")
 print(f"decrypted message: {plain_text}")
