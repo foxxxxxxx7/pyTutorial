@@ -1,72 +1,55 @@
+def print_border():
+    print("-----------------")
+
+
 def show_balance(balance):
-    print("-----------------")
+    print_border()
     print(f"Your balance is €{balance:.2f}")
-    print("-----------------")
+    print_border()
 
 
-def deposit():
-    print("-----------------")
-    amount = float(input("How much do you want to deposit?: "))
-    print("-----------------")
-
+def get_amount(action):
+    print_border()
+    amount = float(input(f"How much do you want to {action}?: "))
+    print_border()
     if amount < 0:
         print("No negative numbers")
         return 0
-    else:
-        return amount
+    return amount
+
+
+def deposit(balance):
+    return balance + get_amount("deposit")
 
 
 def withdraw(balance):
-    print("-----------------")
-    amount = float(input("How much would you like to withdarw?: "))
-    print("-----------------")
-
+    amount = get_amount("withdraw")
     if amount > balance:
-        print("-----------------")
-        print("Insufficent funds")
-        print("-----------------")
-        return 0
-    elif amount < 0:
-        print("-----------------")
-        print("No negative numbers")
-        print("-----------------")
-        return 0
-    else:
-        return amount
+        print_border()
+        print("Insufficient funds")
+        print_border()
+        return balance
+    return balance - amount
 
 
 def main():
     balance = 0
-    is_running = True
+    actions = {
+        "1": lambda: show_balance(balance),
+        "2": lambda: deposit(balance),
+        "3": lambda: withdraw(balance),
+        "4": lambda: exit("Thanks for banking with us")
+    }
 
-    while is_running:
-        print("-----------------")
+    while True:
+        print_border()
         print("Banking programme")
-        print("-----------------")
-        print("1.Show Balance")
-        print("2.Deposit")
-        print("3.Withdraw")
-        print("4.Exit")
-        print("-----------------")
-
-        choice = input("Enter your choice (1-4): ")
-
-        if choice == "1":
-            show_balance(balance)
-        elif choice == "2":
-            balance += deposit()
-        elif choice == "3":
-            balance -= withdraw(balance)
-        elif choice == "4":
-            is_running = False
-        else:
-            print("-----------------")
-            print("Not an option")
-            print("-----------------")
-
-    print("-----------------")
-    print("Thanks for banking with us")
-    print("-----------------")
+        print_border()
+        print("1. Show Balance\n2. Deposit\n3. Withdraw\n4. Exit")
+        print_border()
+        action = input("Enter your choice (1-4): ")
+        print_border()
+        balance = actions.get(action, lambda: print("Not an option"))()
 
 
 if __name__ == "__main__":
