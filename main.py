@@ -1,56 +1,97 @@
-def print_border():
-    print("-----------------")
+import random
 
 
-def show_balance(balance):
-    print_border()
-    print(f"Your balance is €{balance:.2f}")
-    print_border()
+def line_breaker():
+    print('-----------------------')
 
 
-def get_amount(action):
-    print_border()
-    amount = float(input(f"How much do you want to {action}?: "))
-    print_border()
-    if amount < 0:
-        print("No negative numbers")
-        return 0
-    return amount
+def spin_row():
+    symbols = ['🍒', '🍑', '🍋', '🎰', '⭐']
+
+    return [random.choice(symbols) for _ in range(3)]
+
+def print_row(row):
+    print(" | ".join(row))
+    line_breaker()
 
 
-def deposit(balance):
-    return balance + get_amount("deposit")
-
-
-def withdraw(balance):
-    amount = get_amount("withdraw")
-    if amount > balance:
-        print_border()
-        print("Insufficient funds")
-        print_border()
-        return balance
-    return balance - amount
+def get_payout(row, bet):
+    if row[0] == row [1] == row[2]:
+        if row[0] == '🍒':
+            return bet *3
+        elif row[0] == '🍑':
+            return bet *5
+        elif row[0] == '🍋':
+            return bet *10
+        elif row[0] == '🎰':
+            return bet *10
+        elif row[0] == '⭐':
+            return bet *50
+    return 0
 
 
 def main():
-    balance = 0
-    actions = {
-        "1": lambda: show_balance(balance),
-        "2": lambda: deposit(balance),
-        "3": lambda: withdraw(balance),
-        "4": lambda: exit("Thanks for banking with us")
-    }
+    balance = 100
 
-    while True:
-        print_border()
-        print("Banking programme")
-        print_border()
-        print("1. Show Balance\n2. Deposit\n3. Withdraw\n4. Exit")
-        print_border()
-        action = input("Enter your choice (1-4): ")
-        print_border()
-        balance = actions.get(action, lambda: print("Not an option"))()
+    line_breaker()
+    print('Welcome to the slot machine')
+    print('Symbols: 🍒 🍑 🍋 🎰 ⭐')
+    line_breaker()
 
 
-if __name__ == "__main__":
+    while balance > 0 :
+        print(f"Current balance: €{balance}")
+
+        bet = input('Place your bet: ')
+
+        if not bet.isdigit():
+            line_breaker()
+            print('Please enter a valid number')
+            line_breaker()
+            continue
+
+        bet = int(bet)
+
+        if bet > balance:
+            line_breaker()
+            print('Insufficent funds')
+            line_breaker()
+            continue
+
+        if bet <= 0:
+            line_breaker()
+            print('Bet must be a positive number')
+            line_breaker()
+            continue
+
+        balance -= bet
+
+        row = spin_row()
+        line_breaker()
+        print('Spinning... \n')
+        print_row(row)
+
+        payout = get_payout(row, bet)
+
+        if payout > 0:
+            line_breaker()
+            print(f'You won! €{payout}')
+            line_breaker()
+        else:
+            line_breaker()
+            print('Sorry you lost this round')
+            line_breaker()
+
+        balance += payout
+
+        play_again = input('Do you want to play again? (y/n): ').lower()
+
+        if play_again != 'y':
+            break
+
+    line_breaker()
+    print(f'Game Over! Your final balance is €{balance}')
+    line_breaker()
+
+if __name__ == '__main__':
     main()
