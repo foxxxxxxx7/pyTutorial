@@ -1,34 +1,19 @@
 import random
 
-
 def line_breaker():
-    print('-----------------------')
-
+    print('-' * 23)
 
 def spin_row():
     symbols = ['🍒', '🍑', '🍋', '🎰', '⭐']
-
-    return [random.choice(symbols) for _ in range(3)]
+    return random.choices(symbols, k=3)
 
 def print_row(row):
     print(" | ".join(row))
     line_breaker()
 
-
 def get_payout(row, bet):
-    if row[0] == row [1] == row[2]:
-        if row[0] == '🍒':
-            return bet *3
-        elif row[0] == '🍑':
-            return bet *5
-        elif row[0] == '🍋':
-            return bet *10
-        elif row[0] == '🎰':
-            return bet *10
-        elif row[0] == '⭐':
-            return bet *50
-    return 0
-
+    payout_multipliers = {'🍒': 3, '🍑': 5, '🍋': 10, '🎰': 10, '⭐': 50}
+    return bet * payout_multipliers.get(row[0], 0) if row.count(row[0]) == 3 else 0
 
 def main():
     balance = 100
@@ -38,55 +23,35 @@ def main():
     print('Symbols: 🍒 🍑 🍋 🎰 ⭐')
     line_breaker()
 
-
-    while balance > 0 :
+    while balance > 0:
         print(f"Current balance: €{balance}")
 
-        bet = input('Place your bet: ')
-
-        if not bet.isdigit():
+        try:
+            bet = int(input('Place your bet: '))
+            if bet <= 0:
+                raise ValueError('Bet must be a positive number')
+            if bet > balance:
+                raise ValueError('Insufficient funds')
+        except ValueError as e:
             line_breaker()
-            print('Please enter a valid number')
-            line_breaker()
-            continue
-
-        bet = int(bet)
-
-        if bet > balance:
-            line_breaker()
-            print('Insufficent funds')
-            line_breaker()
-            continue
-
-        if bet <= 0:
-            line_breaker()
-            print('Bet must be a positive number')
+            print(e)
             line_breaker()
             continue
 
         balance -= bet
-
         row = spin_row()
         line_breaker()
-        print('Spinning... \n')
+        print('Spinning...\n')
         print_row(row)
 
         payout = get_payout(row, bet)
-
-        if payout > 0:
-            line_breaker()
-            print(f'You won! €{payout}')
-            line_breaker()
-        else:
-            line_breaker()
-            print('Sorry you lost this round')
-            line_breaker()
-
         balance += payout
 
-        play_again = input('Do you want to play again? (y/n): ').lower()
+        line_breaker()
+        print(f'You won! €{payout}' if payout > 0 else 'Sorry, you lost this round')
+        line_breaker()
 
-        if play_again != 'y':
+        if input('Do you want to play again? (y/n): ').lower() != 'y':
             break
 
     line_breaker()
