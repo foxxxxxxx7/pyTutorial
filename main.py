@@ -1,89 +1,63 @@
 import random
 from wordlist import words
 
-hangman_art = {0: ("   ",
-                   "   ",
-                   "   "),
-               1: (" o ",
-                   "   ",
-                   "   "),
-               2: (" o ",
-                   " | ",
-                   "   "),
-               3: (" o ",
-                   "/| ",
-                   "   "),
-               4: (" o ",
-                   "/|\\",
-                   "   "),
-               5: (" o ",
-                   "/|\\",
-                   "/  "),
-               6: (" o ",
-                   "/|\\",
-                   "/ \\")}
-
+hangman_art = [
+    "   \n   \n   ",
+    " o \n   \n   ",
+    " o \n | \n   ",
+    " o \n/| \n   ",
+    " o \n/|\\\n   ",
+    " o \n/|\\\n/  ",
+    " o \n/|\\\n/ \\"
+]
 
 def display_man(incorrect_guesses):
-    border()
-    for line in hangman_art[incorrect_guesses]:
-        print(line)
-    border()
+    print_border()
+    print(hangman_art[incorrect_guesses])
+    print_border()
 
-def display_hint(hint):
-    print(' '.join(hint))
-
-def display_answer(answer):
-    print(' '.join(answer))
-
-def border():
+def print_border():
     print('*************')
 
 def main():
     answer = random.choice(words)
     hint = ['_'] * len(answer)
-    incorrect_guesses = 0
     guessed_letters = set()
-    is_running = True
+    incorrect_guesses = 0
 
-    while is_running:
+    while True:
         display_man(incorrect_guesses)
-        display_hint(hint)
+        print(' '.join(hint))
+
         guess = input("Enter a letter: ").lower()
 
-        if len(guess) != 1:
-            print('One letter at a time bozo!')
-            continue
-
-        if not guess.isalpha():
-            print('No numbers jerk!')
+        if len(guess) != 1 or not guess.isalpha():
+            print('Invalid input! Enter a single letter.')
             continue
 
         if guess in guessed_letters:
-            print(f'You already guessed "{guess}", ya jabroni!')
+            print(f'You already guessed "{guess}"!')
             continue
 
         guessed_letters.add(guess)
 
         if guess in answer:
-            for i in range(len(answer)):
-                if answer[i] == guess:
+            for i, letter in enumerate(answer):
+                if letter == guess:
                     hint[i] = guess
         else:
             incorrect_guesses += 1
 
         if '_' not in hint:
             display_man(incorrect_guesses)
-            display_answer(answer)
+            print(' '.join(answer))
             print('WINNER WINNER!!')
-            is_running = False
-        elif incorrect_guesses >= len(hangman_art) - 1:
+            break
+        elif incorrect_guesses == len(hangman_art) - 1:
             display_man(incorrect_guesses)
-            display_answer(answer)
+            print(' '.join(answer))
             print('LOOOOOOOOOSER!!')
-            is_running = False
-
-
+            break
 
 if __name__ == '__main__':
     main()
