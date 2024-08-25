@@ -1,62 +1,89 @@
 import random
+from wordlist import words
 
-def line_breaker():
-    print('-' * 23)
+hangman_art = {0: ("   ",
+                   "   ",
+                   "   "),
+               1: (" o ",
+                   "   ",
+                   "   "),
+               2: (" o ",
+                   " | ",
+                   "   "),
+               3: (" o ",
+                   "/| ",
+                   "   "),
+               4: (" o ",
+                   "/|\\",
+                   "   "),
+               5: (" o ",
+                   "/|\\",
+                   "/  "),
+               6: (" o ",
+                   "/|\\",
+                   "/ \\")}
 
-def spin_row():
-    symbols = ['🍒', '🍑', '🍋', '🎰', '⭐']
-    return random.choices(symbols, k=3)
 
-def print_row(row):
-    print(" | ".join(row))
-    line_breaker()
+def display_man(incorrect_guesses):
+    border()
+    for line in hangman_art[incorrect_guesses]:
+        print(line)
+    border()
 
-def get_payout(row, bet):
-    payout_multipliers = {'🍒': 3, '🍑': 5, '🍋': 10, '🎰': 10, '⭐': 50}
-    return bet * payout_multipliers.get(row[0], 0) if row.count(row[0]) == 3 else 0
+def display_hint(hint):
+    print(' '.join(hint))
+
+def display_answer(answer):
+    print(' '.join(answer))
+
+def border():
+    print('*************')
 
 def main():
-    balance = 100
+    answer = random.choice(words)
+    hint = ['_'] * len(answer)
+    incorrect_guesses = 0
+    guessed_letters = set()
+    is_running = True
 
-    line_breaker()
-    print('Welcome to the slot machine')
-    print('Symbols: 🍒 🍑 🍋 🎰 ⭐')
-    line_breaker()
+    while is_running:
+        display_man(incorrect_guesses)
+        display_hint(hint)
+        guess = input("Enter a letter: ").lower()
 
-    while balance > 0:
-        print(f"Current balance: €{balance}")
-
-        try:
-            bet = int(input('Place your bet: '))
-            if bet <= 0:
-                raise ValueError('Bet must be a positive number')
-            if bet > balance:
-                raise ValueError('Insufficient funds')
-        except ValueError as e:
-            line_breaker()
-            print(e)
-            line_breaker()
+        if len(guess) != 1:
+            print('One letter at a time bozo!')
             continue
 
-        balance -= bet
-        row = spin_row()
-        line_breaker()
-        print('Spinning...\n')
-        print_row(row)
+        if not guess.isalpha():
+            print('No numbers jerk!')
+            continue
 
-        payout = get_payout(row, bet)
-        balance += payout
+        if guess in guessed_letters:
+            print(f'You already guessed "{guess}", ya jabroni!')
+            continue
 
-        line_breaker()
-        print(f'You won! €{payout}' if payout > 0 else 'Sorry, you lost this round')
-        line_breaker()
+        guessed_letters.add(guess)
 
-        if input('Do you want to play again? (y/n): ').lower() != 'y':
-            break
+        if guess in answer:
+            for i in range(len(answer)):
+                if answer[i] == guess:
+                    hint[i] = guess
+        else:
+            incorrect_guesses += 1
 
-    line_breaker()
-    print(f'Game Over! Your final balance is €{balance}')
-    line_breaker()
+        if '_' not in hint:
+            display_man(incorrect_guesses)
+            display_answer(answer)
+            print('WINNER WINNER!!')
+            is_running = False
+        elif incorrect_guesses >= len(hangman_art) - 1:
+            display_man(incorrect_guesses)
+            display_answer(answer)
+            print('LOOOOOOOOOSER!!')
+            is_running = False
+
+
 
 if __name__ == '__main__':
     main()
