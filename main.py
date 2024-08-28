@@ -1,82 +1,54 @@
-import sys
-from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout)
-from PyQt5.QtCore import QTimer, QTime, Qt
-
-class Stopwatch(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.time = QTime(0, 0, 0, 0)
-        self.time_label = QLabel('00:00:00:00', self)
-        self.start_button = QPushButton('Start', self)
-        self.stop_button = QPushButton('Stop', self)
-        self.reset_button = QPushButton('Reset', self)
-        self.timer = QTimer(self)
-        self.initUI()
-
-    def initUI(self):
-        self.setWindowTitle('Stopwatch')
-
-        vbox = QVBoxLayout()
-        vbox.addWidget(self.time_label)
+RESISTOR_VALUES = {'black': 0, 'brown': 1, 'red': 2, 'orange': 3, 'yellow': 4, 'green': 5, 'blue': 6, 'violet': 7,
+    'grey': 8, 'white': 9}
+TOLERANCE_VALUES = {'grey': 0.05, 'violet': 0.1, 'blue': 0.25, 'green': 0.5, 'brown': 1, 'red': 2, 'gold': 5,
+    'silver': 10, }
 
 
-        self.setLayout(vbox)
+def resistor_label(colors):
+    value = ""
+    exponent = 0
+    tolerance = 0
+    unit = " ohms"
+    if len(colors) == 4:
+        for i, color in enumerate(colors):
+            if i < 2:
+                value += str(RESISTOR_VALUES[color])
+            elif i == 2:
+                exponent = RESISTOR_VALUES[color]
+            elif i == 3:
+                tolerance = TOLERANCE_VALUES[color]
+    else:
+        for i, color in enumerate(colors):
+            if i < 3:
+                value += str(RESISTOR_VALUES[color])
+            elif i == 3:
+                exponent = RESISTOR_VALUES[color]
+            elif i == 4:
+                tolerance = TOLERANCE_VALUES[color]
 
-        self.time_label.setAlignment(Qt.AlignCenter)
-
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.start_button)
-        hbox.addWidget(self.stop_button)
-        hbox.addWidget(self.reset_button)
-
-        vbox.addLayout(hbox)
-
-        self.setStyleSheet("""
-            QPushButton, QLabel{
-                padding: 20px;
-                font-weight: bold;
-                font_family: impact;
-            }
-            QPushButton{
-                font-size: 50px;
-            }
-            QLabel{
-                font-size:120px;
-                background-color: hsl(200, 100%, 85%);
-                border-radius: 40 px;
-            }
-        """)
-
-        self.start_button.clicked.connect(self.start)
-        self.stop_button.clicked.connect(self.stop)
-        self.reset_button.clicked.connect(self.reset)
-        self.timer.timeout.connect(self.update_display)
-
-    def start(self):
-        self.timer.start(10)
-
-    def stop(self):
-        self.timer.stop()
-
-    def reset(self):
-        self.timer.stop()
-        self.time = QTime(0,0,0,0)
-        self.time_label.setText(self.format_time(self.time))
-
-    def format_time(self, time):
-        hours = time.hour()
-        minutes = time.minute()
-        seconds = time.second()
-        miliseconds = time.msec() // 10
-        return F'{hours:02}:{minutes:02}:{seconds:02}.{miliseconds:02}'
-
-    def update_display(self):
-        self.time = self.time.addMSecs(10)
-        self.time_label.setText(self.format_time(self.time))
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    stopwatch = Stopwatch()
-    stopwatch.show()
-    sys.exit(app.exec_())
+    final_value = (float(value) * (10 ** exponent))
+    if len(colors) == 4:
+        if 2 <= exponent <= 5:
+            final_value = final_value / 1000
+            unit = " kiloohms"
+        elif 6 <= exponent <= 8:
+            final_value = final_value / 1000 ** 2
+            unit = " megaohms"
+        elif 9 <= exponent <= 11:
+            final_value = final_value / 1000 ** 3
+            unit = " gigaohms"
+    else:
+        if 1 <= exponent <= 3:
+            final_value = final_value / 1000
+            unit = " kiloohms"
+        elif 4 <= exponent <= 6:
+            final_value = final_value / 1000 ** 2
+            unit = " megaohms"
+        elif 7 <= exponent <= 11:
+            final_value = final_value / 1000 ** 3
+            unit = " gigaohms"
+    if final_value == 0:
+        return f'{int(final_value)}{unit}'
+    elif str(final_value)[-2:] == '.0':
+        return f"{int(final_value)}{unit} ±{tolerance}%"
+    return f"{final_value}{unit} ±{tolerance}%"
