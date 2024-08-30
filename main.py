@@ -1,22 +1,29 @@
-def rotate(text, key):
-    cipher = []
-    letters_list = list('abcdefghijklmnopqrstuvwxyz')
+import operator
 
-    def get_final_index(letter, key):
-        letter_index = letters_list.index(letter)
-        final_index = letter_index + key
-        if final_index > 25:
-            final_index -= 26
-        return final_index
 
-    for c in text:
-        if c.isupper():
-            final_index = get_final_index(c.lower(), key)
-            cipher.append(letters_list[final_index].upper())
-        elif c not in letters_list:
-            cipher.append(c)
+def answer(question):
+    ops = {'plus': operator.add, 'minus': operator.sub, 'multiplied': operator.mul, 'divided': operator.truediv}
+    question = question.removeprefix('What is').strip('?').split()
+    if not question or (question[-1] in ops and question[-2].isdigit()) or (
+            question[0] in ops and question[1].isdigit()):
+        raise ValueError("syntax error")
+
+    numbers = []
+    operations = []
+
+    for word in question:
+        if word.isdigit() or (word.startswith('-') and word[1:].isdigit()):
+            numbers.append(int(word))
+        elif word in ops:
+            operations.append(ops[word])
+        elif word == "by":
+            continue
         else:
-            final_index = get_final_index(c, key)
-            cipher.append(letters_list[final_index])
+            raise ValueError("unknown operation")
+    if len(numbers) != len(operations) + 1:
+        raise ValueError("syntax error")
+    result = numbers[0]
+    for i, operation in enumerate(operations):
+        result = operation(result, numbers[i + 1])
 
-    return ''.join(cipher)
+    return result
