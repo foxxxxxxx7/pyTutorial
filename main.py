@@ -1,19 +1,18 @@
-def classify(number):
-    """ A perfect number equals the sum of its positive divisors.
-
-    :param number: int a positive integer
-    :return: str the classification of the input integer
-    """
-    factors = []
-    if number <= 0:
-        raise ValueError("Classification is only possible for positive integers.")
-
-    for n in range(1, number):
-        if number % n == 0:
-            factors.append(n)
-    if sum(factors) == number:
-        return 'perfect'
-    if sum(factors) > number:
-        return 'abundant'
-    if sum(factors) < number:
-        return 'deficient' .
+RESISTOR_VALUES = {
+        'black': 0,
+        'brown': 1,
+        'red': 2,
+        'orange': 3,
+        'yellow': 4,
+        'green': 5,
+        'blue': 6,
+        'violet': 7,
+        'grey': 8,
+        'white': 9
+    }
+def value(colors):
+    value = ""
+    for i, color in enumerate(colors):
+        if i < 2:
+            value += str(RESISTOR_VALUES[color])
+    return int(value)
