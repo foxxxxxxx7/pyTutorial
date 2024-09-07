@@ -1,53 +1,12 @@
-def append(list1, list2):
-    return list1 + list2
-
-
-def concat(lists):
-    result = []
-    for list in lists:
-        for item in list:
-            result.append(item)
-    return result
-
-
-def filter(function, list):
-    result = []
-    for item in list:
-        if function(item):
-            result.append(item)
+def find(search_list, value):
+    start = 0
+    end = len(search_list) - 1
+    while start <= end:
+        mid_index = (start + end) // 2
+        if search_list[mid_index] == value:
+            return mid_index
+        elif search_list[mid_index] < value:
+            start = mid_index + 1
         else:
-            pass
-    return result
-
-
-def length(list):
-    count = 0
-    for item in list:
-        count += 1
-    return count
-
-
-def map(function, list):
-    result = []
-    for item in list:
-        result.append(function(item))
-    return result
-
-
-def foldl(function, list, initial):
-    for item in list:
-        initial = function(initial, item)
-    return initial
-
-
-def foldr(function, list, initial):
-    for item in reversed(list):
-        initial = function(initial, item)
-    return initial
-
-
-def reverse(list):
-    result = []
-    while len(list) > 0:
-        result.append(list.pop())
-    return result
+            end = mid_index - 1
+    raise ValueError('value not in array')
