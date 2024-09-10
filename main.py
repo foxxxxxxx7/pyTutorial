@@ -1,15 +1,21 @@
-def is_paired(input_string):
-    bracket_pairs = {"(": ")", "{": "}", "[": "]"}
-    stack = []
+SUBLIST = 3
+SUPERLIST = 4
+EQUAL = 1
+UNEQUAL = 2
 
-    for c in input_string:
-        if c in bracket_pairs.keys():
-            stack.append(c)
-        elif c in bracket_pairs.values():
-            if len(stack) == 0:
-                return False
-            last_open = stack.pop()
-            if bracket_pairs[last_open] != c:
-                return False
 
-    return len(stack) == 0
+def sublist(list_one, list_two):
+    len_one = len(list_one)
+    len_two = len(list_two)
+
+    if list_one == list_two:
+        return EQUAL
+    if len_one < len_two:
+        for i in range(len_two - len_one + 1):
+            if list_two[i: i + len_one] == list_one:
+                return SUBLIST
+    if len_one > len_two:
+        for i in range(len_one - len_two + 1):
+            if list_one[i: i + len_two] == list_two:
+                return SUPERLIST
+    return UNEQUAL
