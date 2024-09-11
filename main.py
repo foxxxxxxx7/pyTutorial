@@ -1,21 +1,27 @@
-SUBLIST = 3
-SUPERLIST = 4
-EQUAL = 1
-UNEQUAL = 2
+PLAIN = 'abcdefghijklmnopqrstuvwxyz'
+DIGITS = '1234567890'
 
 
-def sublist(list_one, list_two):
-    len_one = len(list_one)
-    len_two = len(list_two)
+def encode(plain_text):
+    cipher = ''
+    for c in plain_text.lower():
+        if c in PLAIN:
+            index = PLAIN.index(c) + 1
+            cipher += PLAIN[-index]
+        elif c in DIGITS:
+            cipher += c
+        continue
 
-    if list_one == list_two:
-        return EQUAL
-    if len_one < len_two:
-        for i in range(len_two - len_one + 1):
-            if list_two[i: i + len_one] == list_one:
-                return SUBLIST
-    if len_one > len_two:
-        for i in range(len_one - len_two + 1):
-            if list_one[i: i + len_two] == list_two:
-                return SUPERLIST
-    return UNEQUAL
+    return ' '.join(cipher[i:i + 5] for i in range(0, len(cipher), 5))
+
+
+def decode(ciphered_text):
+    plain = ciphered_text.replace(' ', '')
+    result = ''
+    for c in plain:
+        if c in PLAIN:
+            index = PLAIN.index(c) + 1
+            result += PLAIN[-index]
+        if c in DIGITS:
+            result += c
+    return result
