@@ -1,21 +1,10 @@
-CODON_DICT = {
-    'Methionine': ['AUG'],
-'Phenylalanine' : ['UUU', 'UUC'],
-'Leucine' : ['UUA', 'UUG'],
-'Serine' : ['UCU', 'UCC', 'UCA', 'UCG'],
-'Tyrosine' : ['UAU', 'UAC'],
-'Cysteine' : ['UGU', 'UGC'],	
-'Tryptophan' : ['UGG'],
-'STOP' : ['UAA', 'UAG', 'UGA']
-}
-def proteins(strand):
+def factors(value):
     result = []
-    for i in range(0, len(strand), 3):
-        substring = strand[i:i+3]
-        for key, value in CODON_DICT.items():
-            if substring in value:
-                result.append(key)
-    for i, j in enumerate(result):
-        if j == 'STOP':
-            result = result[:i]
+    counter = 2
+    while value > 1:
+        if value % counter == 0:
+            result.append(counter)
+            value /= counter
+        else:
+            counter += 1
     return result
