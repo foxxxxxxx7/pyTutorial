@@ -1,22 +1,16 @@
-class Luhn:
-    def __init__(self, card_num):
-        self.card_num = card_num
+def slices(series, length):
+    result = []
+    if length == 0:
+        raise ValueError("slice length cannot be zero")
+    if length < 0:
+        raise ValueError("slice length cannot be negative")
+    if len(series) == 0:
+        raise ValueError("series cannot be empty")
+    if length > len(series):
+        raise ValueError("slice length cannot be greater than series length")
 
-    def valid(self):
-        odd_total = 0
-        even_total = 0
-        total = 0
-
-        clean_num = self.card_num[::-1].replace(' ', '')
-        if not clean_num.isdigit():
-            return False
-
-        for n in clean_num[::2]:
-            odd_total += int(n)
-        for n in clean_num[1::2]:
-            n = int(n) * 2
-            if n > 9:
-                n -= 9
-            even_total += n
-        total = even_total + odd_total
-        return total % 10 == 0 and len(clean_num) > 1
+    for i in range(0, len(series)):
+        if i > len(series) - length:
+            continue
+        result.append(series[i:i + length])
+    return result
