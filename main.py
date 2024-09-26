@@ -1,22 +1,49 @@
-class Queen:
-    def __init__(self, row, column):
-        if row < 0:
-            raise ValueError("row not positive")
-        if column < 0:
-            raise ValueError("column not positive")
-        if row > 7:
-            raise ValueError("row not on board")
-        if column > 7:
-            raise ValueError("column not on board")
-        self.row = row
-        self.column = column
+# Score categories.
+# Change the values as you see fit.
+YACHT = 0
+ONES = 1
+TWOS = 2
+THREES = 3
+FOURS = 4
+FIVES = 5
+SIXES = 6
+FULL_HOUSE = 7
+FOUR_OF_A_KIND = 8
+LITTLE_STRAIGHT = 9
+BIG_STRAIGHT = 10
+CHOICE = 11
 
-    def can_attack(self, another_queen):
-        if self.row == another_queen.row and self.column == another_queen.column:
-            raise ValueError("Invalid queen position: both queens in the same square")
 
-        elif self.row == another_queen.row or self.column == another_queen.column or (
-                abs(self.row - another_queen.row) == abs(self.column - another_queen.column)):
-            return True
-        else:
-            return False
+def score(dice, category):
+    if category == YACHT and len(set(dice)) == 1:
+        return 50
+    elif category == ONES:
+        return dice.count(1)
+    elif category == TWOS:
+        return dice.count(2) * 2
+    elif category == THREES:
+        return dice.count(3) * 3
+    elif category == FOURS:
+        return dice.count(4) * 4
+    elif category == FIVES:
+        return dice.count(5) * 5
+    elif category == SIXES:
+        return dice.count(6) * 6
+    elif category == FULL_HOUSE:
+        counts = sorted([dice.count(d) for d in set(dice)])
+        if counts == [2, 3]:
+            return sum(dice)
+        return 0
+    elif category == FOUR_OF_A_KIND:
+        for d in set(dice):
+            if dice.count(d) >= 4:
+                return d * 4
+        return 0
+    elif category == LITTLE_STRAIGHT and sorted(dice) == [1, 2, 3, 4, 5]:
+        return 30
+    elif category == BIG_STRAIGHT and sorted(dice) == [2, 3, 4, 5, 6]:
+        return 30
+    elif category == CHOICE:
+        return sum(dice)
+    else:
+        return 0
