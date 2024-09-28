@@ -1,9 +1,7 @@
-class HighScores:
-    def __init__(self, scores):
-        self.scores = scores
-    def latest(self):
-        return self.scores[-1]
-    def personal_best(self):
-        return max(self.scores)
-    def personal_top_three(self):
-        return sorted(self.scores, reverse=True)[:3]
+def egg_count(display_value):
+    count = 0
+    while display_value > 0:
+        if display_value % 2 == 1:
+            count += 1
+        display_value //= 2
+    return count
