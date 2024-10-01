@@ -1,20 +1,25 @@
-class Matrix:
-    def __init__(self, matrix_string):
-        rows = matrix_string.split('\n')
-        self.matrix = []
-        for row in rows:
-            number_strings = row.split()
-            numbers = []
-            for num_str in number_strings:
-                numbers.append(int(num_str))
-            self.matrix.append(numbers)
+import sys
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel
 
-    def row(self, index):
-        return self.matrix[index - 1]
 
-    def column(self, index):
-        column_elements = []
-        for row in self.matrix:
-            column_value = row[index - 1]
-            column_elements.append(column_value)
-        return column_elements
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setGeometry(700, 300, 500, 500)
+        self.button = QPushButton("Click me!", self)
+        self.initUI()
+
+    def initUI(self):
+        self.button.setGeometry(150, 200, 200, 100)
+        self.button.setStyleSheet("font-size: 30px;")
+        self.button.clicked.connect(self.on_click)
+
+    def on_click(self):
+        print("Button clicked!")
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
