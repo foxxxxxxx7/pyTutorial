@@ -1,25 +1,25 @@
-import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel
+NUM_DICT = {0: "No", 1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six", 7: "Seven", 8: "Eight", 9: "Nine",
+            10: "Ten"}
 
 
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setGeometry(700, 300, 500, 500)
-        self.button = QPushButton("Click me!", self)
-        self.initUI()
+def recite(start, take=1):
+    result = []
+    for i in range(take):
+        pluralA = "s"
+        pluralC = "s"
 
-    def initUI(self):
-        self.button.setGeometry(150, 200, 200, 100)
-        self.button.setStyleSheet("font-size: 30px;")
-        self.button.clicked.connect(self.on_click)
+        if start == 2:
+            pluralC = ""
+        if start == 1:
+            pluralA = ""
 
-    def on_click(self):
-        print("Button clicked!")
+        verseA = f"{NUM_DICT[start]} green bottle{pluralA} hanging on the wall,"
+        verseB = "And if one green bottle should accidentally fall,"
+        verseC = f"There'll be {NUM_DICT[start - 1].lower()} green bottle{pluralC} hanging on the wall."
 
+        result.extend([verseA, verseA, verseB, verseC])
+        if i < take - 1:
+            result.append("")
+        start -= 1
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec_())
+    return result
