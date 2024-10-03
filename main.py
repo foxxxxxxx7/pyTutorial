@@ -1,25 +1,29 @@
-NUM_DICT = {0: "No", 1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six", 7: "Seven", 8: "Eight", 9: "Nine",
-            10: "Ten"}
+class School:
+    def __init__(self):
+        self.students = {}
+        self.results = []
 
+    def add_student(self, name, grade):
+        if grade not in self.students:
+            self.students[grade] = []
 
-def recite(start, take=1):
-    result = []
-    for i in range(take):
-        pluralA = "s"
-        pluralC = "s"
+        if any(name in students for students in self.students.values()):
+            self.results.append(False)
+        else:
+            self.students[grade].append(name)
+            self.results.append(True)
 
-        if start == 2:
-            pluralC = ""
-        if start == 1:
-            pluralA = ""
+    def roster(self):
+        all_students = []
+        for grade in sorted(self.students.keys()):
+            all_students.extend(sorted(self.students[grade]))
+        return all_students
 
-        verseA = f"{NUM_DICT[start]} green bottle{pluralA} hanging on the wall,"
-        verseB = "And if one green bottle should accidentally fall,"
-        verseC = f"There'll be {NUM_DICT[start - 1].lower()} green bottle{pluralC} hanging on the wall."
+    def grade(self, grade):
+        if grade in self.students:
+            return sorted(self.students[grade])
+        else:
+            return []
 
-        result.extend([verseA, verseA, verseB, verseC])
-        if i < take - 1:
-            result.append("")
-        start -= 1
-
-    return result
+    def added(self):
+        return self.results
