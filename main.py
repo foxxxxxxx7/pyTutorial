@@ -1,29 +1,25 @@
-class School:
-    def __init__(self):
-        self.students = {}
-        self.results = []
+VOWELS = {'a', 'e', 'i', 'o', 'u', 'y'}
+EXCEPTIONS = {'xr', 'yt'}
+SUFFIX = 'ay'
 
-    def add_student(self, name, grade):
-        if grade not in self.students:
-            self.students[grade] = []
 
-        if any(name in students for students in self.students.values()):
-            self.results.append(False)
-        else:
-            self.students[grade].append(name)
-            self.results.append(True)
+def translate_word(word):
+    if word[:2] in EXCEPTIONS or word[0] in VOWELS - {'y'}:
+        return f"{word}{SUFFIX}"
 
-    def roster(self):
-        all_students = []
-        for grade in sorted(self.students.keys()):
-            all_students.extend(sorted(self.students[grade]))
-        return all_students
+    if word[0] == 'y':
+        return f"{word[1:]}y{SUFFIX}"
 
-    def grade(self, grade):
-        if grade in self.students:
-            return sorted(self.students[grade])
-        else:
-            return []
+    if (qu_index := word.find('qu')) != -1:
+        return f"{word[qu_index + 2:]}{word[:qu_index + 2]}{SUFFIX}"
 
-    def added(self):
-        return self.results
+    for i, letter in enumerate(word):
+        if letter in VOWELS:
+            return f"{word[i:]}{word[:i]}{SUFFIX}"
+    return word
+
+
+def translate(text):
+    words = text.split()
+    result = (translate_word(word) for word in words)
+    return ' '.join(result)
