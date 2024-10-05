@@ -1,2 +1,3 @@
-def abbreviate(phrase):
-    return ''.join(word[0].upper() for word in phrase.replace('-', ' ').replace('_', '').split())
+from datetime import timedelta
+def add(moment):
+    return moment + timedelta(seconds=1_000_000_000)
