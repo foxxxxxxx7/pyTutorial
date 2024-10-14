@@ -1,18 +1,35 @@
-def get_coordinate(record):
-    return record[1]
+from collections import deque
 
 
-def convert_coordinate(coordinate):
-    return tuple(coordinate)
+class BufferFullException(BufferError):
+    def __init__(self, message="Circular buffer is full"):
+        super().__init__(message)
 
 
-def compare_records(azara_record, rui_record):
-    return tuple(azara_record[1]) == rui_record[1]
+class BufferEmptyException(BufferError):
+    def __init__(self, message="Circular buffer is empty"):
+        super().__init__(message)
 
 
-def create_record(azara_record, rui_record):
-    return azara_record + rui_record if compare_records(azara_record, rui_record) else 'not a match'
+class CircularBuffer:
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.buffer = deque(maxlen=capacity)
 
+    def read(self):
+        if len(self.buffer) == 0:
+            raise BufferEmptyException()
+        return self.buffer.popleft()
 
-def clean_up(combined_record_group):
-    return '\n'.join(str((item[0], item[2], item[3], item[4])) for item in combined_record_group) + '\n'
+    def write(self, data):
+        if len(self.buffer) == self.capacity:
+            raise BufferFullException()
+        self.buffer.append(data)
+
+    def overwrite(self, data):
+        if len(self.buffer) == self.capacity:
+            self.buffer.popleft()
+        self.buffer.append(data)
+
+    def clear(self):
+        self.buffer.clear()
