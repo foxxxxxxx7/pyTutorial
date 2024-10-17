@@ -1,13 +1,17 @@
-PLANTS = {"G": "Grass", "C": "Clover", "R": "Radishes", "V": "Violets"}
+def classify(number):
+    """A perfect number equals the sum of its positive divisors.
 
-STUDENTS = ["Alice", "Bob", "Charlie", "David", "Eve", "Fred", "Ginny", "Harriet", "Ileana", "Joseph", "Kincaid", "Larry",]
+    :param number: int a positive integer
+    :return: str the classification of the input integer
+    """
+    if number <= 0:
+        raise ValueError("Classification is only possible for positive integers.")
 
-class Garden:
-    def __init__(self, diagram, students= STUDENTS):
-        self.row1, self.row2 = diagram.split("\n")
-        self.students = sorted(students)
+    factors_sum = sum(n for n in range(1, number) if number % n == 0)
 
-    def plants(self, student):
-        index = self.students.index(student)
-        plants = self.row1[2*index:2*index+2] + self.row2[2*index:2*index+2]
-        return [PLANTS[plant] for plant in plants]
+    if factors_sum == number:
+        return 'perfect'
+    elif factors_sum > number:
+        return 'abundant'
+    else:
+        return 'deficient'
