@@ -1,17 +1,21 @@
-def classify(number):
-    """A perfect number equals the sum of its positive divisors.
-
-    :param number: int a positive integer
-    :return: str the classification of the input integer
+def is_armstrong_number(number):
     """
-    if number <= 0:
-        raise ValueError("Classification is only possible for positive integers.")
+    Determine if a given number is an Armstrong number.
 
-    factors_sum = sum(n for n in range(1, number) if number % n == 0)
+    An Armstrong number (or narcissistic number) is a number that is equal to the sum of its digits
+    each raised to the power of the number of digits in the number.
 
-    if factors_sum == number:
-        return 'perfect'
-    elif factors_sum > number:
-        return 'abundant'
-    else:
-        return 'deficient'
+    Args:
+        number (int): The number to be checked.
+
+    Returns:
+        bool: True if the number is an Armstrong number, False otherwise.
+
+    """
+    power = len(str(number))
+    result = 0
+
+    for digit in str(number):
+        result += int(digit) ** power
+
+    return result == number
