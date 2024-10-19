@@ -1,21 +1,21 @@
-def is_armstrong_number(number):
-    """
-    Determine if a given number is an Armstrong number.
+RHYME_PARTS = [
+    "the house that Jack built.",
+    "the malt that lay in ",
+    "the rat that ate ",
+    "the cat that killed ",
+    "the dog that worried ",
+    "the cow with the crumpled horn that tossed ",
+    "the maiden all forlorn that milked ",
+    "the man all tattered and torn that kissed ",
+    "the priest all shaven and shorn that married ",
+    "the rooster that crowed in the morn that woke ",
+    "the farmer sowing his corn that kept ",
+    "the horse and the hound and the horn that belonged to "
+]
 
-    An Armstrong number (or narcissistic number) is a number that is equal to the sum of its digits
-    each raised to the power of the number of digits in the number.
-
-    Args:
-        number (int): The number to be checked.
-
-    Returns:
-        bool: True if the number is an Armstrong number, False otherwise.
-
-    """
-    power = len(str(number))
-    result = 0
-
-    for digit in str(number):
-        result += int(digit) ** power
-
-    return result == number
+def recite(start_verse, end_verse):
+    verses = []
+    for verse in range(start_verse, end_verse + 1):
+        rhyme = "".join(RHYME_PARTS[i] for i in range(verse - 1, -1, -1))
+        verses.append(f"This is {rhyme}")
+    return verses
