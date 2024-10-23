@@ -1,19 +1,4 @@
-class Luhn:
-    def __init__(self, card_num):
-        self.card_num = card_num.replace(' ', '') 
+RESISTOR_VALUES = {'black': 0,'brown': 1,'red': 2,'orange': 3,'yellow': 4,'green': 5,'blue': 6,'violet': 7,'grey': 8,'white': 9 }
 
-    def valid(self):
-        if not self.card_num.isdigit() or len(self.card_num) <= 1:
-            return False
-
-        total = 0
-        reversed_digits = map(int, self.card_num[::-1])  
-
-        for i, digit in enumerate(reversed_digits):
-            if i % 2 == 1: 
-                digit *= 2
-                if digit > 9:
-                    digit -= 9
-            total += digit
-
-        return total % 10 == 0
+def value(colors):
+    return int(''.join(str(RESISTOR_VALUES[color]) for color in colors[:2]))
