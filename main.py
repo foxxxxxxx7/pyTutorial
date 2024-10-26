@@ -1,22 +1,4 @@
-RESISTOR_VALUES = {'black': 0, 'brown': 1, 'red': 2, 'orange': 3, 'yellow': 4, 'green': 5, 'blue': 6, 'violet': 7,
-    'grey': 8, 'white': 9}
-
-
-def label(colors):
-    value = int(''.join(str(RESISTOR_VALUES[color]) for color in colors[:2]))
-    exponent = RESISTOR_VALUES[colors[2]]
-    final_value = value * (10 ** exponent)
-
-    if 2 <= exponent <= 5:
-        final_value //= 1000
-        unit = "kiloohms"
-    elif 6 <= exponent <= 8:
-        final_value //= 1000000
-        unit = "megaohms"
-    elif 9 <= exponent <= 11:
-        final_value //= 1000000000
-        unit = "gigaohms"
-    else:
-        unit = "ohms"
-
-    return f"{final_value} {unit}"
+def distance(strand_a, strand_b):
+    if len(strand_a) != len(strand_b):
+        raise ValueError("Strands must be of equal length.")
+    return sum(1 for i in range(len(strand_a)) if strand_a[i] != strand_b[i])
