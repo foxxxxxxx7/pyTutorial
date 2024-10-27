@@ -1,4 +1,9 @@
-def distance(strand_a, strand_b):
-    if len(strand_a) != len(strand_b):
-        raise ValueError("Strands must be of equal length.")
-    return sum(1 for i in range(len(strand_a)) if strand_a[i] != strand_b[i])
+def steps(number):
+    if number <= 0:
+        raise ValueError("Only positive integers are allowed")
+
+    count = 0
+    while number != 1:
+        number = number / 2 if number % 2 == 0 else number * 3 + 1
+        count += 1
+    return count
