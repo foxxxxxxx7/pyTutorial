@@ -1,36 +1,28 @@
-RESISTOR_VALUES = {
-    'black': 0, 'brown': 1, 'red': 2, 'orange': 3,
-    'yellow': 4, 'green': 5, 'blue': 6, 'violet': 7,
-    'grey': 8, 'white': 9
-}
+class Allergies:
+    ALLERGENS = {
+        "eggs": 1,
+        "peanuts": 2,
+        "shellfish": 4,
+        "strawberries": 8,
+        "tomatoes": 16,
+        "chocolate": 32,
+        "pollen": 64,
+        "cats": 128
+    }
 
-TOLERANCE_VALUES = {
-    'grey': 0.05, 'violet': 0.1, 'blue': 0.25, 'green': 0.5,
-    'brown': 1, 'red': 2, 'gold': 5, 'silver': 10
-}
+    def __init__(self, score):
+        self.score = score
 
-def resistor_label(colors):
-    if len(colors) == 1 and colors[0] == "black":
-        return "0 ohms"
+    def allergic_to(self, item):
+        item_score = self.ALLERGENS.get(item, 0)
+        return (self.score & item_score) != 0
 
-    sig_figs_count = 2 if len(colors) == 4 else 3
-    value = int(''.join(str(RESISTOR_VALUES[color]) for color in colors[:sig_figs_count]))
-    exponent = RESISTOR_VALUES[colors[sig_figs_count]]
-    tolerance = TOLERANCE_VALUES.get(colors[-1], 0)
+    @property
+    def lst(self):
+        allergies_list = []
 
-    final_value = value * (10 ** exponent)
+        for item, item_score in self.ALLERGENS.items():
+            if (self.score & item_score) != 0:
+                allergies_list.append(item)
 
-    if final_value >= 1_000_000_000:
-        final_value /= 1_000_000_000
-        unit = "gigaohms"
-    elif final_value >= 1_000_000:
-        final_value /= 1_000_000
-        unit = "megaohms"
-    elif final_value >= 1_000:
-        final_value /= 1000
-        unit = "kiloohms"
-    else:
-        unit = "ohms"
-
-    final_value_str = f"{final_value:.2f}".rstrip('0').rstrip('.') if isinstance(final_value, float) else str(int(final_value))
-    return f"{final_value_str} {unit} ±{tolerance}%"
+        return allergies_list
