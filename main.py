@@ -1,28 +1,27 @@
-class Allergies:
-    ALLERGENS = {
-        "eggs": 1,
-        "peanuts": 2,
-        "shellfish": 4,
-        "strawberries": 8,
-        "tomatoes": 16,
-        "chocolate": 32,
-        "pollen": 64,
-        "cats": 128
-    }
+def cipher_text(plain_text):
+    clean_text = plain_text.lower().translate(str.maketrans(".-@,%!", " " * 6)).replace(" ", "")
+    text_len = len(clean_text)
+    square = []
+    cipher_chunks = []
 
-    def __init__(self, score):
-        self.score = score
+    if text_len <= 1:
+        return clean_text
 
-    def allergic_to(self, item):
-        item_score = self.ALLERGENS.get(item, 0)
-        return (self.score & item_score) != 0
+    row = round(text_len ** 0.5)
+    if text_len > row * row:
+        col = row + 1
+    else:
+        col = row
 
-    @property
-    def lst(self):
-        allergies_list = []
+    for i in range(0, text_len, col):
+        row_text = clean_text[i:i + col].ljust(col)
+        square.append(row_text)
 
-        for item, item_score in self.ALLERGENS.items():
-            if (self.score & item_score) != 0:
-                allergies_list.append(item)
+    for c in range(col):
+        chunk = ""
+        for r in range(row):
+            if c < len(square[r]):
+                chunk += square[r][c]
+        cipher_chunks.append(chunk.ljust(row))
 
-        return allergies_list
+    return " ".join(cipher_chunks)
