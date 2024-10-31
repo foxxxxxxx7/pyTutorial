@@ -1,27 +1,26 @@
-def cipher_text(plain_text):
-    clean_text = plain_text.lower().translate(str.maketrans(".-@,%!", " " * 6)).replace(" ", "")
-    text_len = len(clean_text)
-    square = []
-    cipher_chunks = []
+from random import randint
 
-    if text_len <= 1:
-        return clean_text
 
-    row = round(text_len ** 0.5)
-    if text_len > row * row:
-        col = row + 1
-    else:
-        col = row
+class Cipher:
+    def __init__(self, key=None):
+        if key is None:
+            self.key = ''.join([chr(ord('a') + randint(0, 25)) for i in range(100)])
+        else:
+            self.key = key
 
-    for i in range(0, text_len, col):
-        row_text = clean_text[i:i + col].ljust(col)
-        square.append(row_text)
+    def encode(self, text):
+        return self.shift_text(text, direction=1)
 
-    for c in range(col):
-        chunk = ""
-        for r in range(row):
-            if c < len(square[r]):
-                chunk += square[r][c]
-        cipher_chunks.append(chunk.ljust(row))
+    def decode(self, text):
+        return self.shift_text(text, direction=-1)
 
-    return " ".join(cipher_chunks)
+    def shift_text(self, text, direction):
+        result = []
+        key_length = len(self.key)
+
+        for i, char in enumerate(text):
+            shift = ord(self.key[i % key_length]) - ord('a')
+            shifted_char = chr((ord(char) - ord('a') + direction * shift) % 26 + ord('a'))
+            result.append(shifted_char)
+
+        return ''.join(result)
