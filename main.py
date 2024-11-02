@@ -1,50 +1,17 @@
-class Record:
-    def __init__(self, record_id, parent_id):
-        self.record_id = record_id
-        self.parent_id = parent_id
+nterms = int(input("How many terms? "))
+n1, n2 = 0, 1
+count = 0
 
-
-class Node:
-    def __init__(self, node_id):
-        self.node_id = node_id
-        self.children = []
-
-
-def BuildTree(records):
-    root = None
-    records.sort(key=lambda x: x.record_id)
-    ordered_id = [record.record_id for record in records]
-    if records:
-        if ordered_id[-1] != len(ordered_id) - 1:
-            raise ValueError('Record id is invalid or out of order.')
-        if ordered_id[0] != 0:
-            raise ValueError('invalid')
-    trees = []
-    parent = {}
-    for i in range(len(ordered_id)):
-        for j in records:
-            if ordered_id[i] == j.record_id:
-                if j.record_id == 0:
-                    if j.parent_id != 0:
-                        raise ValueError("Node parent_id should be smaller than it's record_id.")
-                if j.record_id < j.parent_id:
-                    raise ValueError("Node parent_id should be smaller than it's record_id.")
-                if j.record_id == j.parent_id:
-                    if j.record_id != 0:
-                        raise ValueError('Only root should have equal record and parent id.')
-                trees.append(Node(ordered_id[i]))
-    for i in range(len(ordered_id)):
-        for j in trees:
-            if i == j.node_id:
-                parent = j
-        for j in records:
-            if j.parent_id == i:
-                for k in trees:
-                    if k.node_id == 0:
-                        continue
-                    if j.record_id == k.node_id:
-                        child = k
-                        parent.children.append(child)
-    if len(trees) > 0:
-        root = trees[0]
-    return root
+if nterms <= 0:
+    print("Please enter a positive integer")
+elif nterms == 1:
+    print("Fibonacci sequence upto", nterms, ":")
+    print(n1)
+else:
+    print("Fibonacci sequence:")
+    while count < nterms:
+        print(n1)
+        nth = n1 + n2
+        n1 = n2
+        n2 = nth
+        count += 1
