@@ -1,17 +1,25 @@
-nterms = int(input("How many terms? "))
-n1, n2 = 0, 1
-count = 0
+# Python program to shuffle a deck of cards
 
-if nterms <= 0:
-    print("Please enter a positive integer")
-elif nterms == 1:
-    print("Fibonacci sequence upto", nterms, ":")
-    print(n1)
-else:
-    print("Fibonacci sequence:")
-    while count < nterms:
-        print(n1)
-        nth = n1 + n2
-        n1 = n2
-        n2 = nth
-        count += 1
+# importing modules
+import itertools, random
+
+# make a deck of cards
+deck = list(itertools.product(range(1, 15), ['Spade', 'Heart', 'Diamond', 'Club']))
+
+# shuffle the cards
+random.shuffle(deck)
+
+# mapping for special card values
+value_map = {
+    11: 'J',
+    12: 'Q',
+    13: 'K',
+    14: 'A'
+}
+
+# draw five cards
+print("You got:")
+for i in range(5):
+    # get the card value, check if it's in the map, otherwise use the number
+    value = value_map.get(deck[i][0], deck[i][0])
+    print(value, "of", deck[i][1])
