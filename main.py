@@ -1,18 +1,24 @@
-# Factorial of a number using recursion
+def jpeg_res(filename):
+    """"This function prints the resolution of the jpeg image file passed into it"""
 
-def recur_factorial(n):
-    if n == 1:
-        return n
-    else:
-        return n * recur_factorial(n - 1)
+    # open image for reading in binary mode
+    with open(filename, 'rb') as img_file:
+        # height of image (in 2 bytes) is at 164th position
+        img_file.seek(163)
+
+        # read the 2 bytes
+        a = img_file.read(2)
+
+        # calculate height
+        height = (a[0] << 8) + a[1]
+
+        # next 2 bytes is width
+        a = img_file.read(2)
+
+        # calculate width
+        width = (a[0] << 8) + a[1]
+
+    print("The resolution of the image is", width, "x", height)
 
 
-num = 7
-
-# check if the number is negative
-if num < 0:
-    print("Sorry, factorial does not exist for negative numbers")
-elif num == 0:
-    print("The factorial of 0 is 1")
-else:
-    print("The factorial of", num, "is", recur_factorial(num))
+jpeg_res("img1.jpg")
