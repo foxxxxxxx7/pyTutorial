@@ -1,23 +1,22 @@
-def transpose(text):
-    if not text:
-        return ""
+class Clock:
+    def __init__(self, hour, minute):
+        hr, min = divmod(minute, 60)
+        self._hour = (hr + hour) % 24
+        self._minute = min
 
-    rows = text.split('\n')
+    def __repr__(self):
+        return f"Clock({self._hour}, {self._minute})"
 
-    max_len = 0
-    for row in rows:
-        if len(row) > max_len:
-            max_len = len(row)
+    def __str__(self):
+        return f"{self._hour:02}:{self._minute:02}"
 
-    padded_rows = []
-    for row in rows:
-        padded_rows.append(row.ljust(max_len))
+    def __eq__(self, other):
+        return self._hour == other._hour and self._minute == other._minute
 
-    transposed = []
-    for col in range(max_len):
-        new_row = ""
-        for row in padded_rows:
-            new_row += row[col]
-        transposed.append(new_row)
+    def __add__(self, minutes):
+        hrs, mins = divmod(minutes, 60)
+        return Clock(self._hour + hrs, self._minute + mins)
 
-    return '\n'.join(transposed).rstrip()
+    def __sub__(self, minutes):
+        hrs, mins = divmod(minutes, 60)
+        return Clock(self._hour - hrs, self._minute - mins)
