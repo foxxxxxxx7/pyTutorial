@@ -1,22 +1,31 @@
-class Clock:
-    def __init__(self, hour, minute):
-        hr, min = divmod(minute, 60)
-        self._hour = (hr + hour) % 24
-        self._minute = min
+def square(number):
+    """
+    Calculate the number of grains of rice on a specific square of a chessboard
+    where the number of grains doubles on each subsequent square.
 
-    def __repr__(self):
-        return f"Clock({self._hour}, {self._minute})"
+    The chessboard has 64 squares, and the number of grains on each square
+    corresponds to 2 raised to the power of (square number - 1).
 
-    def __str__(self):
-        return f"{self._hour:02}:{self._minute:02}"
+    Args:
+        number (int): The square number (must be between 1 and 64 inclusive).
 
-    def __eq__(self, other):
-        return self._hour == other._hour and self._minute == other._minute
+    Returns:
+        int: The number of grains of rice on the given square.
 
-    def __add__(self, minutes):
-        hrs, mins = divmod(minutes, 60)
-        return Clock(self._hour + hrs, self._minute + mins)
+    Raises:
+        ValueError: If the square number is not between 1 and 64.
+    """
+    if 1 <= number <= 64:
+        return 2 ** (number - 1)
+    raise ValueError("square must be between 1 and 64")
 
-    def __sub__(self, minutes):
-        hrs, mins = divmod(minutes, 60)
-        return Clock(self._hour - hrs, self._minute - mins)
+
+def total():
+    """
+    Calculate the total number of grains of rice on a chessboard if the number
+    of grains doubles on each subsequent square.
+
+    Returns:
+        int: The total number of grains of rice on all 64 squares of the chessboard.
+    """
+    return (2 ** 64) - 1
