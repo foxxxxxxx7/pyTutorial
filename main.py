@@ -1,60 +1,35 @@
-import random
-import string
+import requests
 
-
-# Function to generate a password
-def generate_password(length, include_uppercase, include_numbers, include_special_chars):
-    # Base set of characters (lowercase letters)
-    characters = string.ascii_lowercase
-    if include_uppercase:
-        characters += string.ascii_uppercase
-    if include_numbers:
-        characters += string.digits
-    if include_special_chars:
-        characters += string.punctuation
-
-    # Ensure we have at least one character from each selected set
-    password = []
-    if include_uppercase:
-        password.append(random.choice(string.ascii_uppercase))
-    if include_numbers:
-        password.append(random.choice(string.digits))
-    if include_special_chars:
-        password.append(random.choice(string.punctuation))
-
-    # Fill the rest of the password length with random characters
-    password += random.choices(characters, k=length - len(password))
-
-    # Shuffle the result to avoid predictable sequences
-    random.shuffle(password)
-
-    # Return the password as a string
-    return ''.join(password)
-
-
-# Function to get user input and generate a password
-def main():
-    print("Welcome to the Password Generator!")
-
-    # Get password length
+# Function to get weather data for a city
+def get_weather(city, api_key):
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
     try:
-        length = int(input("Enter the desired password length: "))
-        if length < 4:
-            print("Password length should be at least 4.")
-            return
-    except ValueError:
-        print("Please enter a valid number.")
-        return
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an error for bad responses
+        data = response.json()
 
-    # Get preferences for character types
-    include_uppercase = input("Include uppercase letters? (yes/no): ").strip().lower() == "yes" or "y"
-    include_numbers = input("Include numbers? (yes/no): ").strip().lower() == "yes" or "y"
-    include_special_chars = input("Include special characters? (yes/no): ").strip().lower() == "yes" or "y"
+        # Extract weather information
+        temperature = data['main']['temp']
+        weather_description = data['weather'][0]['description']
+        humidity = data['main']['humidity']
+        wind_speed = data['wind']['speed']
 
-    # Generate the password
-    password = generate_password(length, include_uppercase, include_numbers, include_special_chars)
-    print(f"\nYour generated password: {password}")
+        # Display the information
+        print(f"\nWeather in {city.capitalize()}:")
+        print(f"Temperature: {temperature}°C")
+        print(f"Weather: {weather_description.capitalize()}")
+        print(f"Humidity: {humidity}%")
+        print(f"Wind Speed: {wind_speed} m/s")
+    except requests.exceptions.HTTPError:
+        print("City not found. Please check the city name and try again.")
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
 
+def main():
+    api_key = "your_openweathermap_api_key"  # Replace with your actual API key
+    print("Welcome to the Weather App!")
+    city = input("Enter the name of a city to get the current weather: ").strip()
+    get_weather(city, api_key)
 
 if __name__ == "__main__":
     main()
