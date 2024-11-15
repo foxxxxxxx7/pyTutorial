@@ -1,54 +1,55 @@
-import requests
+import time
 
 
-# Function to get exchange rates
-def get_exchange_rate(from_currency, to_currency, api_key):
-    url = f"https://v6.exchangerate-api.com/v6/{api_key}/pair/{from_currency}/{to_currency}"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  # Check if the request was successful
-        data = response.json()
+def stopwatch():
+    print("Welcome to the Stopwatch!")
+    print("Commands:")
+    print("  start - Start the stopwatch")
+    print("  stop  - Pause the stopwatch")
+    print("  reset - Reset the stopwatch to 0")
+    print("  quit  - Exit the stopwatch")
 
-        # Check if there was an error with the response data
-        if data["result"] == "success":
-            return data["conversion_rate"]
+    start_time = 0
+    elapsed_time = 0
+    running = False
+
+    while True:
+        command = input("\nEnter a command: ").lower()
+
+        if command == "start":
+            if running:
+                print("Stopwatch is already running.")
+            else:
+                start_time = time.time() - elapsed_time
+                running = True
+                print("Stopwatch started.")
+
+        elif command == "stop":
+            if not running:
+                print("Stopwatch is not running.")
+            else:
+                elapsed_time = time.time() - start_time
+                running = False
+                print(f"Stopwatch paused at {elapsed_time:.2f} seconds.")
+
+        elif command == "reset":
+            start_time = 0
+            elapsed_time = 0
+            running = False
+            print("Stopwatch reset to 0 seconds.")
+
+        elif command == "quit":
+            print("Exiting stopwatch. Goodbye!")
+            break
+
         else:
-            print("Error fetching data. Please check currency codes.")
-            return None
-    except requests.exceptions.RequestException as e:
-        print(f"An error occurred: {e}")
-        return None
+            print("Invalid command. Please use start, stop, reset, or quit.")
 
-
-# Function to perform the currency conversion
-def convert_currency(amount, from_currency, to_currency, api_key):
-    rate = get_exchange_rate(from_currency, to_currency, api_key)
-    if rate is not None:
-        converted_amount = amount * rate
-        print(f"\n{amount} {from_currency} is equal to {converted_amount:.2f} {to_currency} at a rate of {rate}")
-    else:
-        print("Conversion failed due to an error fetching the exchange rate.")
-
-
-def main():
-    api_key = "your_exchangerate_api_key"  # Replace with your actual API key
-    print("Welcome to the Currency Converter!")
-
-    # Get user inputs
-    from_currency = input("Enter the base currency (e.g., USD): ").upper()
-    to_currency = input("Enter the target currency (e.g., EUR): ").upper()
-    try:
-        amount = float(input("Enter the amount to convert: "))
-        if amount < 0:
-            print("Amount cannot be negative.")
-            return
-    except ValueError:
-        print("Invalid amount. Please enter a number.")
-        return
-
-    # Perform the conversion
-    convert_currency(amount, from_currency, to_currency, api_key)
+        # Display elapsed time in real-time if running
+        if running:
+            elapsed_time = time.time() - start_time
+            print(f"Elapsed time: {elapsed_time:.2f} seconds", end="\r")
 
 
 if __name__ == "__main__":
-    main()
+    stopwatch()
