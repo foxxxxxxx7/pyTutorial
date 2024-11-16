@@ -1,55 +1,71 @@
-import time
+def convert_length(value, from_unit, to_unit):
+    conversions = {
+        "meters": 1,
+        "kilometers": 0.001,
+        "centimeters": 100,
+        "inches": 39.3701,
+        "feet": 3.28084,
+        "miles": 0.000621371
+    }
+    return value * conversions[to_unit] / conversions[from_unit]
 
 
-def stopwatch():
-    print("Welcome to the Stopwatch!")
-    print("Commands:")
-    print("  start - Start the stopwatch")
-    print("  stop  - Pause the stopwatch")
-    print("  reset - Reset the stopwatch to 0")
-    print("  quit  - Exit the stopwatch")
+def convert_weight(value, from_unit, to_unit):
+    conversions = {
+        "grams": 1,
+        "kilograms": 0.001,
+        "pounds": 0.00220462,
+        "ounces": 0.035274
+    }
+    return value * conversions[to_unit] / conversions[from_unit]
 
-    start_time = 0
-    elapsed_time = 0
-    running = False
 
-    while True:
-        command = input("\nEnter a command: ").lower()
+def convert_temperature(value, from_unit, to_unit):
+    if from_unit == "celsius" and to_unit == "fahrenheit":
+        return (value * 9 / 5) + 32
+    elif from_unit == "fahrenheit" and to_unit == "celsius":
+        return (value - 32) * 5 / 9
+    elif from_unit == "celsius" and to_unit == "kelvin":
+        return value + 273.15
+    elif from_unit == "kelvin" and to_unit == "celsius":
+        return value - 273.15
+    else:
+        return value  # No conversion needed for same units
 
-        if command == "start":
-            if running:
-                print("Stopwatch is already running.")
-            else:
-                start_time = time.time() - elapsed_time
-                running = True
-                print("Stopwatch started.")
 
-        elif command == "stop":
-            if not running:
-                print("Stopwatch is not running.")
-            else:
-                elapsed_time = time.time() - start_time
-                running = False
-                print(f"Stopwatch paused at {elapsed_time:.2f} seconds.")
+def main():
+    print("Welcome to the Unit Converter!")
+    print("Conversion categories: length, weight, temperature")
 
-        elif command == "reset":
-            start_time = 0
-            elapsed_time = 0
-            running = False
-            print("Stopwatch reset to 0 seconds.")
+    category = input("\nEnter a category to convert (length/weight/temperature): ").strip().lower()
 
-        elif command == "quit":
-            print("Exiting stopwatch. Goodbye!")
-            break
+    if category == "length":
+        print("Available units: meters, kilometers, centimeters, inches, feet, miles")
+        from_unit = input("Enter the unit to convert from: ").strip().lower()
+        to_unit = input("Enter the unit to convert to: ").strip().lower()
+        value = float(input("Enter the value to convert: "))
+        result = convert_length(value, from_unit, to_unit)
 
-        else:
-            print("Invalid command. Please use start, stop, reset, or quit.")
+    elif category == "weight":
+        print("Available units: grams, kilograms, pounds, ounces")
+        from_unit = input("Enter the unit to convert from: ").strip().lower()
+        to_unit = input("Enter the unit to convert to: ").strip().lower()
+        value = float(input("Enter the value to convert: "))
+        result = convert_weight(value, from_unit, to_unit)
 
-        # Display elapsed time in real-time if running
-        if running:
-            elapsed_time = time.time() - start_time
-            print(f"Elapsed time: {elapsed_time:.2f} seconds", end="\r")
+    elif category == "temperature":
+        print("Available units: celsius, fahrenheit, kelvin")
+        from_unit = input("Enter the unit to convert from: ").strip().lower()
+        to_unit = input("Enter the unit to convert to: ").strip().lower()
+        value = float(input("Enter the value to convert: "))
+        result = convert_temperature(value, from_unit, to_unit)
+
+    else:
+        print("Invalid category.")
+        return
+
+    print(f"\nConverted value: {result:.2f} {to_unit}")
 
 
 if __name__ == "__main__":
-    stopwatch()
+    main()
