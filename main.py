@@ -1,70 +1,38 @@
-def convert_length(value, from_unit, to_unit):
-    conversions = {
-        "meters": 1,
-        "kilometers": 0.001,
-        "centimeters": 100,
-        "inches": 39.3701,
-        "feet": 3.28084,
-        "miles": 0.000621371
-    }
-    return value * conversions[to_unit] / conversions[from_unit]
+import time
 
 
-def convert_weight(value, from_unit, to_unit):
-    conversions = {
-        "grams": 1,
-        "kilograms": 0.001,
-        "pounds": 0.00220462,
-        "ounces": 0.035274
-    }
-    return value * conversions[to_unit] / conversions[from_unit]
+def pomodoro_timer(work_minutes, break_minutes, cycles):
+    for cycle in range(1, cycles + 1):
+        print(f"\nCycle {cycle}/{cycles}: Work for {work_minutes} minutes.")
+        countdown(work_minutes * 60, "Time to take a break!")
+
+        if cycle < cycles:
+            print(f"Take a break for {break_minutes} minutes.")
+            countdown(break_minutes * 60, "Back to work!")
+
+    print("\nPomodoro session complete. Great job!")
 
 
-def convert_temperature(value, from_unit, to_unit):
-    if from_unit == "celsius" and to_unit == "fahrenheit":
-        return (value * 9 / 5) + 32
-    elif from_unit == "fahrenheit" and to_unit == "celsius":
-        return (value - 32) * 5 / 9
-    elif from_unit == "celsius" and to_unit == "kelvin":
-        return value + 273.15
-    elif from_unit == "kelvin" and to_unit == "celsius":
-        return value - 273.15
-    else:
-        return value  # No conversion needed for same units
+def countdown(seconds, message):
+    while seconds:
+        mins, secs = divmod(seconds, 60)
+        timer = f"{mins:02}:{secs:02}"
+        print(timer, end="\r")
+        time.sleep(1)
+        seconds -= 1
+    print(message)
 
 
 def main():
-    print("Welcome to the Unit Converter!")
-    print("Conversion categories: length, weight, temperature")
+    print("Welcome to the Pomodoro Timer!")
+    try:
+        work_minutes = int(input("Enter work duration (in minutes): "))
+        break_minutes = int(input("Enter break duration (in minutes): "))
+        cycles = int(input("Enter number of cycles: "))
 
-    category = input("\nEnter a category to convert (length/weight/temperature): ").strip().lower()
-
-    if category == "length":
-        print("Available units: meters, kilometers, centimeters, inches, feet, miles")
-        from_unit = input("Enter the unit to convert from: ").strip().lower()
-        to_unit = input("Enter the unit to convert to: ").strip().lower()
-        value = float(input("Enter the value to convert: "))
-        result = convert_length(value, from_unit, to_unit)
-
-    elif category == "weight":
-        print("Available units: grams, kilograms, pounds, ounces")
-        from_unit = input("Enter the unit to convert from: ").strip().lower()
-        to_unit = input("Enter the unit to convert to: ").strip().lower()
-        value = float(input("Enter the value to convert: "))
-        result = convert_weight(value, from_unit, to_unit)
-
-    elif category == "temperature":
-        print("Available units: celsius, fahrenheit, kelvin")
-        from_unit = input("Enter the unit to convert from: ").strip().lower()
-        to_unit = input("Enter the unit to convert to: ").strip().lower()
-        value = float(input("Enter the value to convert: "))
-        result = convert_temperature(value, from_unit, to_unit)
-
-    else:
-        print("Invalid category.")
-        return
-
-    print(f"\nConverted value: {result:.2f} {to_unit}")
+        pomodoro_timer(work_minutes, break_minutes, cycles)
+    except ValueError:
+        print("Please enter valid numbers for the durations and cycles.")
 
 
 if __name__ == "__main__":
