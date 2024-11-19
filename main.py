@@ -1,67 +1,61 @@
-import requests
-import json
+import csv
 
-API_KEY = "your_openweathermap_api_key"
-
-def fetch_weather(city):
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        return {
-            "city": data["name"],
-            "temperature": data["main"]["temp"],
-            "description": data["weather"][0]["description"]
-        }
-    else:
-        return {"error": "City not found or API issue."}
-
-def save_log(city, weather, observation):
-    with open("weather_journal.txt", "a") as file:
-        file.write(f"City: {city}\n")
-        file.write(f"Temperature: {weather['temperature']}°C\n")
-        file.write(f"Weather: {weather['description']}\n")
-        file.write(f"Observation: {observation}\n")
-        file.write("-" * 40 + "\n")
-
-def display_logs():
+def add_expense(expenses):
+    category = input("Enter expense category (e.g., Food, Transport): ").strip().capitalize()
     try:
-        with open("weather_journal.txt", "r") as file:
-            print("\nYour Weather Journal:\n")
-            print(file.read())
-    except FileNotFoundError:
-        print("\nNo logs found. Start journaling your weather observations!")
+        amount = float(input("Enter amount spent: "))
+        expenses.append({"category": category, "amount": amount})
+        print("Expense added successfully!")
+    except ValueError:
+        print("Invalid amount. Please enter a number.")
+
+def view_summary(expenses):
+    if not expenses:
+        print("\nNo expenses recorded yet.")
+        return
+
+    summary = {}
+    for expense in expenses:
+        summary[expense["category"]] = summary.get(expense["category"], 0) + expense["amount"]
+
+    print("\nExpense Summary:")
+    for category, total in summary.items():
+        print(f"{category}: €{total:.2f}")
+    print(f"Total Spending: €{sum(item['amount'] for item in expenses):.2f}")
+
+def export_to_csv(expenses):
+    if not expenses:
+        print("No expenses to export.")
+        return
+
+    filename = "expenses.csv"
+    with open(filename, "w", newline="") as csvfile:
+        fieldnames = ["category", "amount"]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        writer.writerows(expenses)
+
+    print(f"Expenses exported to {filename}")
 
 def main():
-    print("Welcome to the Weather Journal!")
+    print("Welcome to the Expense Tracker!")
+    expenses = []
+
     while True:
         print("\nOptions:")
-        print("1. Fetch Weather")
-        print("2. Log Weather Observation")
-        print("3. View Weather Journal")
+        print("1. Add Expense")
+        print("2. View Summary")
+        print("3. Export to CSV")
         print("4. Exit")
         choice = input("Choose an option (1-4): ").strip()
 
         if choice == "1":
-            city = input("Enter a city: ").strip()
-            weather = fetch_weather(city)
-            if "error" in weather:
-                print(weather["error"])
-            else:
-                print(f"City: {weather['city']}")
-                print(f"Temperature: {weather['temperature']}°C")
-                print(f"Weather: {weather['description']}")
+            add_expense(expenses)
         elif choice == "2":
-            city = input("Enter a city: ").strip()
-            weather = fetch_weather(city)
-            if "error" in weather:
-                print(weather["error"])
-            else:
-                observation = input("Write your weather observation: ").strip()
-                save_log(city, weather, observation)
-                print("Observation saved!")
+            view_summary(expenses)
         elif choice == "3":
-            display_logs()
+            export_to_csv(expenses)
         elif choice == "4":
             print("Goodbye!")
             break
