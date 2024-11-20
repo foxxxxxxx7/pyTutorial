@@ -1,63 +1,82 @@
-import csv
+import json
+from datetime import datetime
 
-def add_expense(expenses):
-    category = input("Enter expense category (e.g., Food, Transport): ").strip().capitalize()
+FILENAME = "habits.json"
+
+def load_habits():
     try:
-        amount = float(input("Enter amount spent: "))
-        expenses.append({"category": category, "amount": amount})
-        print("Expense added successfully!")
-    except ValueError:
-        print("Invalid amount. Please enter a number.")
+        with open(FILENAME, "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {}
 
-def view_summary(expenses):
-    if not expenses:
-        print("\nNo expenses recorded yet.")
+def save_habits(habits):
+    with open(FILENAME, "w") as file:
+        json.dump(habits, file)
+
+def add_habit(habits):
+    habit = input("Enter the name of the habit you want to track: ").strip()
+    if habit in habits:
+        print("This habit is already being tracked.")
+    else:
+        habits[habit] = {"streak": 0, "last_completed": None}
+        print(f"Habit '{habit}' added successfully!")
+
+def log_habit(habits):
+    habit = input("Enter the habit you completed today: ").strip()
+    if habit not in habits:
+        print("This habit is not being tracked. Add it first!")
         return
 
-    summary = {}
-    for expense in expenses:
-        summary[expense["category"]] = summary.get(expense["category"], 0) + expense["amount"]
-
-    print("\nExpense Summary:")
-    for category, total in summary.items():
-        print(f"{category}: €{total:.2f}")
-    print(f"Total Spending: €{sum(item['amount'] for item in expenses):.2f}")
-
-def export_to_csv(expenses):
-    if not expenses:
-        print("No expenses to export.")
+    today = datetime.now().date().isoformat()
+    if habits[habit]["last_completed"] == today:
+        print("You already logged this habit for today.")
         return
 
-    filename = "expenses.csv"
-    with open(filename, "w", newline="") as csvfile:
-        fieldnames = ["category", "amount"]
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    if habits[habit]["last_completed"]:
+        last_date = datetime.fromisoformat(habits[habit]["last_completed"]).date()
+        if (datetime.now().date() - last_date).days == 1:
+            habits[habit]["streak"] += 1
+        else:
+            habits[habit]["streak"] = 1
+    else:
+        habits[habit]["streak"] = 1
 
-        writer.writeheader()
-        writer.writerows(expenses)
+    habits[habit]["last_completed"] = today
+    print(f"Habit '{habit}' logged for today. Current streak: {habits[habit]['streak']} days.")
 
-    print(f"Expenses exported to {filename}")
+def view_habits(habits):
+    if not habits:
+        print("No habits being tracked yet.")
+        return
+
+    print("\nTracked Habits:")
+    for habit, details in habits.items():
+        streak = details["streak"]
+        last_completed = details["last_completed"] or "Never"
+        print(f"- {habit}: Streak - {streak} days | Last Completed - {last_completed}")
 
 def main():
-    print("Welcome to the Expense Tracker!")
-    expenses = []
+    print("Welcome to the Habit Tracker!")
+    habits = load_habits()
 
     while True:
         print("\nOptions:")
-        print("1. Add Expense")
-        print("2. View Summary")
-        print("3. Export to CSV")
+        print("1. Add a Habit")
+        print("2. Log a Habit")
+        print("3. View Habits")
         print("4. Exit")
         choice = input("Choose an option (1-4): ").strip()
 
         if choice == "1":
-            add_expense(expenses)
+            add_habit(habits)
         elif choice == "2":
-            view_summary(expenses)
+            log_habit(habits)
         elif choice == "3":
-            export_to_csv(expenses)
+            view_habits(habits)
         elif choice == "4":
-            print("Goodbye!")
+            save_habits(habits)
+            print("Goodbye! Keep building your habits!")
             break
         else:
             print("Invalid option. Please try again.")
