@@ -1,82 +1,78 @@
 import json
-from datetime import datetime
+import random
 
-FILENAME = "habits.json"
+FILENAME = "library.json"
 
-def load_habits():
+# Sample book recommendations database
+RECOMMENDATIONS = {
+    "Fiction": ["The Great Gatsby", "To Kill a Mockingbird", "1984"],
+    "Non-Fiction": ["Sapiens", "Educated", "The Immortal Life of Henrietta Lacks"],
+    "Fantasy": ["Harry Potter", "The Hobbit", "Mistborn"],
+    "Science Fiction": ["Dune", "Neuromancer", "The Martian"],
+    "Mystery": ["Gone Girl", "Sherlock Holmes", "The Girl with the Dragon Tattoo"]
+}
+
+def load_library():
     try:
         with open(FILENAME, "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        return {}
+        return []
 
-def save_habits(habits):
+def save_library(library):
     with open(FILENAME, "w") as file:
-        json.dump(habits, file)
+        json.dump(library, file)
 
-def add_habit(habits):
-    habit = input("Enter the name of the habit you want to track: ").strip()
-    if habit in habits:
-        print("This habit is already being tracked.")
-    else:
-        habits[habit] = {"streak": 0, "last_completed": None}
-        print(f"Habit '{habit}' added successfully!")
+def add_book(library):
+    title = input("Enter the book title: ").strip()
+    author = input("Enter the author's name: ").strip()
+    genre = input("Enter the genre: ").strip().capitalize()
 
-def log_habit(habits):
-    habit = input("Enter the habit you completed today: ").strip()
-    if habit not in habits:
-        print("This habit is not being tracked. Add it first!")
+    library.append({"title": title, "author": author, "genre": genre})
+    print(f"Book '{title}' by {author} added to your library.")
+
+def view_library(library):
+    if not library:
+        print("Your library is empty. Start adding books!")
         return
 
-    today = datetime.now().date().isoformat()
-    if habits[habit]["last_completed"] == today:
-        print("You already logged this habit for today.")
+    print("\nYour Library:")
+    for book in library:
+        print(f"- {book['title']} by {book['author']} (Genre: {book['genre']})")
+
+def recommend_books(library):
+    if not library:
+        print("Your library is empty. Add some books to get recommendations!")
         return
 
-    if habits[habit]["last_completed"]:
-        last_date = datetime.fromisoformat(habits[habit]["last_completed"]).date()
-        if (datetime.now().date() - last_date).days == 1:
-            habits[habit]["streak"] += 1
-        else:
-            habits[habit]["streak"] = 1
-    else:
-        habits[habit]["streak"] = 1
+    genres = [book["genre"] for book in library]
+    favorite_genre = max(set(genres), key=genres.count)
 
-    habits[habit]["last_completed"] = today
-    print(f"Habit '{habit}' logged for today. Current streak: {habits[habit]['streak']} days.")
-
-def view_habits(habits):
-    if not habits:
-        print("No habits being tracked yet.")
-        return
-
-    print("\nTracked Habits:")
-    for habit, details in habits.items():
-        streak = details["streak"]
-        last_completed = details["last_completed"] or "Never"
-        print(f"- {habit}: Streak - {streak} days | Last Completed - {last_completed}")
+    print(f"\nBased on your favorite genre '{favorite_genre}', we recommend:")
+    for book in random.sample(RECOMMENDATIONS.get(favorite_genre, []), k=3):
+        print(f"- {book}")
 
 def main():
-    print("Welcome to the Habit Tracker!")
-    habits = load_habits()
+    print("Welcome to the Book Recommendation System!")
+    library = load_library()
 
     while True:
         print("\nOptions:")
-        print("1. Add a Habit")
-        print("2. Log a Habit")
-        print("3. View Habits")
+        print("1. Add a Book")
+        print("2. View Library")
+        print("3. Get Recommendations")
         print("4. Exit")
         choice = input("Choose an option (1-4): ").strip()
 
         if choice == "1":
-            add_habit(habits)
+            add_book(library)
         elif choice == "2":
-            log_habit(habits)
+            view_library(library)
         elif choice == "3":
-            view_habits(habits)
+            recommend_books(library)
         elif choice == "4":
-            save_habits(habits)
-            print("Goodbye! Keep building your habits!")
+            save_library(library)
+            print("Goodbye! Happy reading!")
             break
         else:
             print("Invalid option. Please try again.")
