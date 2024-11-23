@@ -1,81 +1,62 @@
-import json
+import turtle
 import random
 
-FILENAME = "library.json"
+def random_color():
+    """Generate a random color in RGB format."""
+    return random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
 
-# Sample book recommendations database
-RECOMMENDATIONS = {
-    "Fiction": ["The Great Gatsby", "To Kill a Mockingbird", "1984"],
-    "Non-Fiction": ["Sapiens", "Educated", "The Immortal Life of Henrietta Lacks"],
-    "Fantasy": ["Harry Potter", "The Hobbit", "Mistborn"],
-    "Science Fiction": ["Dune", "Neuromancer", "The Martian"],
-    "Mystery": ["Gone Girl", "Sherlock Holmes", "The Girl with the Dragon Tattoo"]
-}
+def random_shape(t):
+    """Draw a random shape on the canvas."""
+    shapes = ["circle", "square", "triangle"]
+    shape = random.choice(shapes)
 
-def load_library():
-    try:
-        with open(FILENAME, "r") as file:
-            return json.load(file)
-    except FileNotFoundError:
-        return []
+    x = random.randint(-200, 200)
+    y = random.randint(-200, 200)
+    size = random.randint(20, 100)
+    t.penup()
+    t.goto(x, y)
+    t.pendown()
+    t.fillcolor(random_color())
 
-def save_library(library):
-    with open(FILENAME, "w") as file:
-        json.dump(library, file)
+    t.begin_fill()
+    if shape == "circle":
+        t.circle(size // 2)
+    elif shape == "square":
+        for _ in range(4):
+            t.forward(size)
+            t.right(90)
+    elif shape == "triangle":
+        for _ in range(3):
+            t.forward(size)
+            t.right(120)
+    t.end_fill()
 
-def add_book(library):
-    title = input("Enter the book title: ").strip()
-    author = input("Enter the author's name: ").strip()
-    genre = input("Enter the genre: ").strip().capitalize()
+def generate_art(num_shapes):
+    """Generate the random art on the canvas."""
+    screen = turtle.Screen()
+    screen.setup(width=500, height=500)
+    screen.colormode(255)
 
-    library.append({"title": title, "author": author, "genre": genre})
-    print(f"Book '{title}' by {author} added to your library.")
+    t = turtle.Turtle()
+    t.speed("fastest")
+    t.hideturtle()
 
-def view_library(library):
-    if not library:
-        print("Your library is empty. Start adding books!")
-        return
+    for _ in range(num_shapes):
+        random_shape(t)
 
-    print("\nYour Library:")
-    for book in library:
-        print(f"- {book['title']} by {book['author']} (Genre: {book['genre']})")
-
-def recommend_books(library):
-    if not library:
-        print("Your library is empty. Add some books to get recommendations!")
-        return
-
-    genres = [book["genre"] for book in library]
-    favorite_genre = max(set(genres), key=genres.count)
-
-    print(f"\nBased on your favorite genre '{favorite_genre}', we recommend:")
-    for book in random.sample(RECOMMENDATIONS.get(favorite_genre, []), k=3):
-        print(f"- {book}")
+    print("Artwork generated! Close the window to finish.")
+    screen.mainloop()
 
 def main():
-    print("Welcome to the Book Recommendation System!")
-    library = load_library()
-
-    while True:
-        print("\nOptions:")
-        print("1. Add a Book")
-        print("2. View Library")
-        print("3. Get Recommendations")
-        print("4. Exit")
-        choice = input("Choose an option (1-4): ").strip()
-
-        if choice == "1":
-            add_book(library)
-        elif choice == "2":
-            view_library(library)
-        elif choice == "3":
-            recommend_books(library)
-        elif choice == "4":
-            save_library(library)
-            print("Goodbye! Happy reading!")
-            break
+    print("Welcome to the Random Art Generator!")
+    try:
+        num_shapes = int(input("Enter the number of shapes to draw (e.g., 50): "))
+        if num_shapes <= 0:
+            print("Please enter a positive number.")
         else:
-            print("Invalid option. Please try again.")
+            generate_art(num_shapes)
+    except ValueError:
+        print("Invalid input. Please enter a number.")
 
 if __name__ == "__main__":
     main()
