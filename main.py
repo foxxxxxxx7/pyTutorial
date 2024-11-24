@@ -1,62 +1,59 @@
-import turtle
+import time
 import random
 
-def random_color():
-    """Generate a random color in RGB format."""
-    return random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+# Sample sentences for the typing test
+SENTENCES = [
+    "The quick brown fox jumps over the lazy dog.",
+    "Python is a powerful programming language.",
+    "Typing speed is a useful skill to develop.",
+    "Always aim for accuracy before speed.",
+    "Practice makes perfect when it comes to typing."
+]
 
-def random_shape(t):
-    """Draw a random shape on the canvas."""
-    shapes = ["circle", "square", "triangle"]
-    shape = random.choice(shapes)
+def get_random_sentence():
+    """Return a random sentence from the list."""
+    return random.choice(SENTENCES)
 
-    x = random.randint(-200, 200)
-    y = random.randint(-200, 200)
-    size = random.randint(20, 100)
-    t.penup()
-    t.goto(x, y)
-    t.pendown()
-    t.fillcolor(random_color())
+def typing_test():
+    """Run the typing speed test."""
+    sentence = get_random_sentence()
+    print("\nTyping Speed Test!")
+    print(f"Type the following sentence:\n\n{sentence}\n")
+    input("Press Enter when you are ready to start...")
 
-    t.begin_fill()
-    if shape == "circle":
-        t.circle(size // 2)
-    elif shape == "square":
-        for _ in range(4):
-            t.forward(size)
-            t.right(90)
-    elif shape == "triangle":
-        for _ in range(3):
-            t.forward(size)
-            t.right(120)
-    t.end_fill()
+    start_time = time.time()
+    typed_sentence = input("\nStart typing: ")
+    end_time = time.time()
 
-def generate_art(num_shapes):
-    """Generate the random art on the canvas."""
-    screen = turtle.Screen()
-    screen.setup(width=500, height=500)
-    screen.colormode(255)
+    # Calculate elapsed time
+    elapsed_time = end_time - start_time
+    elapsed_minutes = elapsed_time / 60
 
-    t = turtle.Turtle()
-    t.speed("fastest")
-    t.hideturtle()
+    # Calculate words per minute
+    words = len(sentence.split())
+    wpm = words / elapsed_minutes
 
-    for _ in range(num_shapes):
-        random_shape(t)
+    # Calculate accuracy
+    correct_chars = sum(1 for a, b in zip(typed_sentence, sentence) if a == b)
+    accuracy = (correct_chars / len(sentence)) * 100
 
-    print("Artwork generated! Close the window to finish.")
-    screen.mainloop()
+    # Display results
+    print("\nResults:")
+    print(f"Time Taken: {elapsed_time:.2f} seconds")
+    print(f"Words Per Minute (WPM): {wpm:.2f}")
+    print(f"Accuracy: {accuracy:.2f}%")
+    if typed_sentence != sentence:
+        print("\nYour input had errors. Here's the original sentence:")
+        print(sentence)
 
 def main():
-    print("Welcome to the Random Art Generator!")
-    try:
-        num_shapes = int(input("Enter the number of shapes to draw (e.g., 50): "))
-        if num_shapes <= 0:
-            print("Please enter a positive number.")
-        else:
-            generate_art(num_shapes)
-    except ValueError:
-        print("Invalid input. Please enter a number.")
+    """Main program loop."""
+    while True:
+        typing_test()
+        retry = input("\nWould you like to try again? (yes/no): ").strip().lower()
+        if retry != "yes":
+            print("Thanks for playing! Goodbye!")
+            break
 
 if __name__ == "__main__":
     main()
