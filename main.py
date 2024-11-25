@@ -1,59 +1,44 @@
-import time
-import random
+import qrcode
 
-# Sample sentences for the typing test
-SENTENCES = [
-    "The quick brown fox jumps over the lazy dog.",
-    "Python is a powerful programming language.",
-    "Typing speed is a useful skill to develop.",
-    "Always aim for accuracy before speed.",
-    "Practice makes perfect when it comes to typing."
-]
 
-def get_random_sentence():
-    """Return a random sentence from the list."""
-    return random.choice(SENTENCES)
+def generate_qr_code():
+    """Generate and save a QR code based on user input."""
+    print("Welcome to the QR Code Generator!")
+    data = input("Enter the text or URL to encode: ").strip()
+    if not data:
+        print("You must enter some text or a URL.")
+        return
 
-def typing_test():
-    """Run the typing speed test."""
-    sentence = get_random_sentence()
-    print("\nTyping Speed Test!")
-    print(f"Type the following sentence:\n\n{sentence}\n")
-    input("Press Enter when you are ready to start...")
+    filename = input("Enter a name for the QR code image file (without extension): ").strip()
+    if not filename:
+        print("Filename cannot be empty. Using default name 'qr_code'.")
+        filename = "qr_code"
 
-    start_time = time.time()
-    typed_sentence = input("\nStart typing: ")
-    end_time = time.time()
+    # Create the QR code
+    qr = qrcode.QRCode(
+        version=1,  # Controls the size of the QR code
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=4
+    )
+    qr.add_data(data)
+    qr.make(fit=True)
 
-    # Calculate elapsed time
-    elapsed_time = end_time - start_time
-    elapsed_minutes = elapsed_time / 60
+    # Generate the image
+    img = qr.make_image(fill_color="black", back_color="white")
+    img.save(f"{filename}.png")
+    print(f"QR code saved as {filename}.png!")
 
-    # Calculate words per minute
-    words = len(sentence.split())
-    wpm = words / elapsed_minutes
-
-    # Calculate accuracy
-    correct_chars = sum(1 for a, b in zip(typed_sentence, sentence) if a == b)
-    accuracy = (correct_chars / len(sentence)) * 100
-
-    # Display results
-    print("\nResults:")
-    print(f"Time Taken: {elapsed_time:.2f} seconds")
-    print(f"Words Per Minute (WPM): {wpm:.2f}")
-    print(f"Accuracy: {accuracy:.2f}%")
-    if typed_sentence != sentence:
-        print("\nYour input had errors. Here's the original sentence:")
-        print(sentence)
 
 def main():
     """Main program loop."""
     while True:
-        typing_test()
-        retry = input("\nWould you like to try again? (yes/no): ").strip().lower()
+        generate_qr_code()
+        retry = input("\nWould you like to generate another QR code? (yes/no): ").strip().lower()
         if retry != "yes":
-            print("Thanks for playing! Goodbye!")
+            print("Thanks for using the QR Code Generator! Goodbye!")
             break
+
 
 if __name__ == "__main__":
     main()
