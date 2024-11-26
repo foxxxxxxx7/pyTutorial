@@ -1,44 +1,31 @@
-import qrcode
+import random
 
-
-def generate_qr_code():
-    """Generate and save a QR code based on user input."""
-    print("Welcome to the QR Code Generator!")
-    data = input("Enter the text or URL to encode: ").strip()
-    if not data:
-        print("You must enter some text or a URL.")
-        return
-
-    filename = input("Enter a name for the QR code image file (without extension): ").strip()
-    if not filename:
-        print("Filename cannot be empty. Using default name 'qr_code'.")
-        filename = "qr_code"
-
-    # Create the QR code
-    qr = qrcode.QRCode(
-        version=1,  # Controls the size of the QR code
-        error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=10,
-        border=4
-    )
-    qr.add_data(data)
-    qr.make(fit=True)
-
-    # Generate the image
-    img = qr.make_image(fill_color="black", back_color="white")
-    img.save(f"{filename}.png")
-    print(f"QR code saved as {filename}.png!")
-
+def roll_dice(sides, count):
+    """Rolls dice and returns the results."""
+    return [random.randint(1, sides) for _ in range(count)]
 
 def main():
-    """Main program loop."""
+    """Main function for the virtual dice roller."""
+    print("Welcome to the Virtual Dice Roller!")
     while True:
-        generate_qr_code()
-        retry = input("\nWould you like to generate another QR code? (yes/no): ").strip().lower()
-        if retry != "yes":
-            print("Thanks for using the QR Code Generator! Goodbye!")
-            break
+        try:
+            sides = int(input("\nEnter the number of sides on the dice (e.g., 6 for a standard dice): "))
+            count = int(input("Enter the number of dice to roll: "))
+            if sides <= 0 or count <= 0:
+                print("Please enter positive integers for both sides and count.")
+                continue
+        except ValueError:
+            print("Invalid input! Please enter integers only.")
+            continue
 
+        results = roll_dice(sides, count)
+        print(f"\nYou rolled: {results}")
+        print(f"Total: {sum(results)}")
+
+        retry = input("\nWould you like to roll again? (yes/no): ").strip().lower()
+        if retry != "yes":
+            print("Thanks for using the Virtual Dice Roller! Goodbye!")
+            break
 
 if __name__ == "__main__":
     main()
