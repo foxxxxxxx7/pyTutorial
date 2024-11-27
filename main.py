@@ -1,31 +1,34 @@
-import random
+from translate import Translator
 
-def roll_dice(sides, count):
-    """Rolls dice and returns the results."""
-    return [random.randint(1, sides) for _ in range(count)]
+
+def translate_text():
+    """Translate text from one language to another."""
+    print("Welcome to the Language Translator!")
+    source_lang = input("Enter the source language (e.g., 'en' for English): ").strip()
+    target_lang = input("Enter the target language (e.g., 'es' for Spanish): ").strip()
+    text_to_translate = input("Enter the text you want to translate: ").strip()
+
+    if not source_lang or not target_lang or not text_to_translate:
+        print("All fields are required!")
+        return
+
+    try:
+        translator = Translator(from_lang=source_lang, to_lang=target_lang)
+        translation = translator.translate(text_to_translate)
+        print(f"\nTranslated Text ({source_lang} -> {target_lang}): {translation}")
+    except Exception as e:
+        print(f"Error during translation: {e}")
+
 
 def main():
-    """Main function for the virtual dice roller."""
-    print("Welcome to the Virtual Dice Roller!")
+    """Main loop for the translator tool."""
     while True:
-        try:
-            sides = int(input("\nEnter the number of sides on the dice (e.g., 6 for a standard dice): "))
-            count = int(input("Enter the number of dice to roll: "))
-            if sides <= 0 or count <= 0:
-                print("Please enter positive integers for both sides and count.")
-                continue
-        except ValueError:
-            print("Invalid input! Please enter integers only.")
-            continue
-
-        results = roll_dice(sides, count)
-        print(f"\nYou rolled: {results}")
-        print(f"Total: {sum(results)}")
-
-        retry = input("\nWould you like to roll again? (yes/no): ").strip().lower()
+        translate_text()
+        retry = input("\nWould you like to translate something else? (yes/no): ").strip().lower()
         if retry != "yes":
-            print("Thanks for using the Virtual Dice Roller! Goodbye!")
+            print("Thank you for using the Language Translator! Goodbye!")
             break
+
 
 if __name__ == "__main__":
     main()
