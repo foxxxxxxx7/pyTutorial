@@ -1,77 +1,84 @@
 import random
 import json
 
-FLASHCARDS_FILE = "flashcards.json"
+RECIPES_FILE = "recipes.json"
 
-
-def load_flashcards():
-    """Load flashcards from a file."""
+def load_recipes():
+    """Load recipes from a file."""
     try:
-        with open(FLASHCARDS_FILE, "r") as file:
+        with open(RECIPES_FILE, "r") as file:
             return json.load(file)
     except FileNotFoundError:
         return {}
 
+def save_recipes(recipes):
+    """Save recipes to a file."""
+    with open(RECIPES_FILE, "w") as file:
+        json.dump(recipes, file)
 
-def save_flashcards(flashcards):
-    """Save flashcards to a file."""
-    with open(FLASHCARDS_FILE, "w") as file:
-        json.dump(flashcards, file)
+def add_recipe(recipes):
+    """Add a new recipe."""
+    recipe_name = input("Enter the recipe name: ").strip()
+    ingredients = input("Enter the ingredients (comma-separated): ").strip().split(",")
+    recipes[recipe_name] = [ingredient.strip() for ingredient in ingredients]
+    print(f"Recipe '{recipe_name}' added!")
 
-
-def create_flashcard(flashcards):
-    """Create a new flashcard."""
-    question = input("Enter the question: ").strip()
-    answer = input("Enter the answer: ").strip()
-    flashcards[question] = answer
-    print("Flashcard added!")
-
-
-def review_flashcards(flashcards):
-    """Review flashcards with the user."""
-    if not flashcards:
-        print("No flashcards to review!")
+def generate_meal_plan(recipes):
+    """Generate a weekly meal plan."""
+    if not recipes:
+        print("No recipes available! Please add some recipes first.")
         return
 
-    questions = list(flashcards.keys())
-    random.shuffle(questions)
-    score = 0
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    meal_plan = {day: random.choice(list(recipes.keys())) for day in days}
 
-    for question in questions:
-        print(f"\nQuestion: {question}")
-        user_answer = input("Your answer: ").strip()
-        if user_answer.lower() == flashcards[question].lower():
-            print("Correct!")
-            score += 1
-        else:
-            print(f"Wrong! The correct answer was: {flashcards[question]}")
+    print("\nWeekly Meal Plan:")
+    for day, recipe in meal_plan.items():
+        print(f"- {day}: {recipe}")
 
-    print(f"\nYour score: {score}/{len(questions)}")
+    return meal_plan
 
+def create_shopping_list(meal_plan, recipes):
+    """Create a shopping list based on the meal plan."""
+    if not meal_plan:
+        print("No meal plan available! Generate one first.")
+        return
+
+    shopping_list = {}
+    for recipe in meal_plan.values():
+        for ingredient in recipes[recipe]:
+            shopping_list[ingredient] = shopping_list.get(ingredient, 0) + 1
+
+    print("\nShopping List:")
+    for ingredient, count in shopping_list.items():
+        print(f"- {ingredient}: {count}")
 
 def main():
-    """Main function for the Flashcard Quiz App."""
-    print("Welcome to the Flashcard Quiz App!")
-    flashcards = load_flashcards()
+    """Main function for the Random Meal Planner."""
+    print("Welcome to the Random Meal Planner!")
+    recipes = load_recipes()
+    meal_plan = None
 
     while True:
         print("\nMenu:")
-        print("1. Create a flashcard")
-        print("2. Review flashcards")
-        print("3. Exit")
+        print("1. Add a recipe")
+        print("2. Generate weekly meal plan")
+        print("3. Create shopping list")
+        print("4. Exit")
         choice = input("Choose an option: ").strip()
 
         if choice == "1":
-            create_flashcard(flashcards)
-            save_flashcards(flashcards)
+            add_recipe(recipes)
+            save_recipes(recipes)
         elif choice == "2":
-            review_flashcards(flashcards)
+            meal_plan = generate_meal_plan(recipes)
         elif choice == "3":
+            create_shopping_list(meal_plan, recipes)
+        elif choice == "4":
             print("Goodbye!")
             break
         else:
             print("Invalid choice. Please try again.")
-
 
 if __name__ == "__main__":
     main()
