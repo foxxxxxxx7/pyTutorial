@@ -1,81 +1,46 @@
-import random
-import json
+import time
+import threading
+import os
 
-RECIPES_FILE = "recipes.json"
+def countdown_timer(name, duration, alert_message):
+    """Runs a countdown timer."""
+    print(f"Timer '{name}' started for {duration} seconds.")
+    while duration > 0:
+        mins, secs = divmod(duration, 60)
+        timer_display = f"{mins:02}:{secs:02}"
+        print(f"{name}: {timer_display}", end="\r")
+        time.sleep(1)
+        duration -= 1
+    print(f"\nTime's up for '{name}'! {alert_message}")
 
-def load_recipes():
-    """Load recipes from a file."""
-    try:
-        with open(RECIPES_FILE, "r") as file:
-            return json.load(file)
-    except FileNotFoundError:
-        return {}
-
-def save_recipes(recipes):
-    """Save recipes to a file."""
-    with open(RECIPES_FILE, "w") as file:
-        json.dump(recipes, file)
-
-def add_recipe(recipes):
-    """Add a new recipe."""
-    recipe_name = input("Enter the recipe name: ").strip()
-    ingredients = input("Enter the ingredients (comma-separated): ").strip().split(",")
-    recipes[recipe_name] = [ingredient.strip() for ingredient in ingredients]
-    print(f"Recipe '{recipe_name}' added!")
-
-def generate_meal_plan(recipes):
-    """Generate a weekly meal plan."""
-    if not recipes:
-        print("No recipes available! Please add some recipes first.")
-        return
-
-    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    meal_plan = {day: random.choice(list(recipes.keys())) for day in days}
-
-    print("\nWeekly Meal Plan:")
-    for day, recipe in meal_plan.items():
-        print(f"- {day}: {recipe}")
-
-    return meal_plan
-
-def create_shopping_list(meal_plan, recipes):
-    """Create a shopping list based on the meal plan."""
-    if not meal_plan:
-        print("No meal plan available! Generate one first.")
-        return
-
-    shopping_list = {}
-    for recipe in meal_plan.values():
-        for ingredient in recipes[recipe]:
-            shopping_list[ingredient] = shopping_list.get(ingredient, 0) + 1
-
-    print("\nShopping List:")
-    for ingredient, count in shopping_list.items():
-        print(f"- {ingredient}: {count}")
+def set_timer():
+    """Prompt the user to set up a timer."""
+    name = input("Enter a name for your timer: ").strip()
+    duration = int(input("Enter the duration in seconds: ").strip())
+    alert_message = input("Enter a custom message for when the timer ends: ").strip()
+    return name, duration, alert_message
 
 def main():
-    """Main function for the Random Meal Planner."""
-    print("Welcome to the Random Meal Planner!")
-    recipes = load_recipes()
-    meal_plan = None
+    """Main function to manage multiple timers."""
+    print("Welcome to the Custom Countdown Timer!")
+    timers = []
 
     while True:
         print("\nMenu:")
-        print("1. Add a recipe")
-        print("2. Generate weekly meal plan")
-        print("3. Create shopping list")
-        print("4. Exit")
+        print("1. Set a new timer")
+        print("2. Exit")
         choice = input("Choose an option: ").strip()
 
         if choice == "1":
-            add_recipe(recipes)
-            save_recipes(recipes)
+            name, duration, alert_message = set_timer()
+            timer_thread = threading.Thread(target=countdown_timer, args=(name, duration, alert_message))
+            timer_thread.start()
+            timers.append(timer_thread)
         elif choice == "2":
-            meal_plan = generate_meal_plan(recipes)
-        elif choice == "3":
-            create_shopping_list(meal_plan, recipes)
-        elif choice == "4":
-            print("Goodbye!")
+            print("Exiting... Waiting for all timers to finish.")
+            for timer in timers:
+                timer.join()
+            print("All timers have completed. Goodbye!")
             break
         else:
             print("Invalid choice. Please try again.")
