@@ -1,76 +1,76 @@
+from textblob import TextBlob
+import matplotlib.pyplot as plt
+from datetime import datetime
 import json
 
-# Predefined exercise library
-EXERCISES = {
-    "strength": ["Push-ups", "Squats", "Deadlifts", "Pull-ups"],
-    "cardio": ["Jumping Jacks", "Burpees", "Running", "Cycling"],
-    "flexibility": ["Yoga Poses", "Stretching", "Pilates", "Tai Chi"],
-}
+# Function to analyze sentiment
+def analyze_sentiment(entry):
+    analysis = TextBlob(entry)
+    polarity = analysis.sentiment.polarity
+    if polarity > 0:
+        return "Positive"
+    elif polarity < 0:
+        return "Negative"
+    else:
+        return "Neutral"
 
+# Function to save a journal entry
+def save_entry(entry, mood):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open("journal.json", "r+") as file:
+        try:
+            data = json.load(file)
+        except json.JSONDecodeError:
+            data = []
+        data.append({"timestamp": timestamp, "entry": entry, "mood": mood})
+        file.seek(0)
+        json.dump(data, file, indent=4)
 
-def generate_workout(goal, time, equipment):
-    """Generate a workout plan based on user input."""
-    plan = []
-    exercises = EXERCISES.get(goal, [])
-    for exercise in exercises:
-        if equipment or exercise not in ["Pull-ups", "Deadlifts"]:  # Example filter
-            plan.append(f"{exercise}: {time // len(exercises)} minutes")
-    return plan
-
-
-def save_workout(plan):
-    """Save the workout plan to a file."""
-    with open("workout_plan.json", "w") as file:
-        json.dump(plan, file)
-    print("Workout plan saved!")
-
-
-def load_workout():
-    """Load a saved workout plan."""
+# Function to view mood trends
+def view_mood_trends():
     try:
-        with open("workout_plan.json", "r") as file:
-            plan = json.load(file)
-        print("Loaded workout plan:")
-        for exercise in plan:
-            print(f"- {exercise}")
+        with open("journal.json", "r") as file:
+            data = json.load(file)
+        dates = [entry["timestamp"] for entry in data]
+        moods = [entry["mood"] for entry in data]
+        mood_map = {"Positive": 1, "Neutral": 0, "Negative": -1}
+        mood_scores = [mood_map[mood] for mood in moods]
+
+        plt.plot(dates, mood_scores, marker="o")
+        plt.xticks(rotation=45)
+        plt.title("Mood Trends Over Time")
+        plt.ylabel("Mood (Positive: 1, Neutral: 0, Negative: -1)")
+        plt.xlabel("Date")
+        plt.tight_layout()
+        plt.show()
     except FileNotFoundError:
-        print("No saved workout plan found.")
+        print("No journal entries found. Start journaling today!")
 
-
+# Main function
 def main():
-    print("Welcome to the Personalized Workout Planner!")
-
+    print("Welcome to the Daily Journal with Sentiment Analysis!")
     while True:
         print("\nMenu:")
-        print("1. Create a new workout plan")
-        print("2. View saved workout plan")
+        print("1. Write a new journal entry")
+        print("2. View mood trends")
         print("3. Exit")
         choice = input("Choose an option: ").strip()
 
         if choice == "1":
-            goal = input("Enter your fitness goal (strength, cardio, flexibility): ").strip().lower()
-            time = int(input("How many minutes do you have for a workout? ").strip())
-            equipment = input("Do you have any equipment? (yes/no): ").strip().lower() == "yes"
-
-            plan = generate_workout(goal, time, equipment)
-            print("\nYour workout plan:")
-            for exercise in plan:
-                print(f"- {exercise}")
-
-            save_choice = input("Do you want to save this plan? (yes/no): ").strip().lower()
-            if save_choice == "yes":
-                save_workout(plan)
+            entry = input("Write your journal entry:\n")
+            mood = analyze_sentiment(entry)
+            save_entry(entry, mood)
+            print(f"Your mood has been analyzed as: {mood}. Entry saved!")
 
         elif choice == "2":
-            load_workout()
+            view_mood_trends()
 
         elif choice == "3":
-            print("Goodbye! Stay fit!")
+            print("Goodbye! Keep journaling!")
             break
 
         else:
             print("Invalid choice. Please try again.")
-
 
 if __name__ == "__main__":
     main()
