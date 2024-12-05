@@ -1,76 +1,69 @@
-from textblob import TextBlob
-import matplotlib.pyplot as plt
+import os
+import platform
+import time
+import random
+import requests
 from datetime import datetime
-import json
 
-# Function to analyze sentiment
-def analyze_sentiment(entry):
-    analysis = TextBlob(entry)
-    polarity = analysis.sentiment.polarity
-    if polarity > 0:
-        return "Positive"
-    elif polarity < 0:
-        return "Negative"
+# Function to set wallpaper (platform-specific)
+def set_wallpaper(image_path):
+    system = platform.system()
+    if system == "Windows":
+        import ctypes
+        ctypes.windll.user32.SystemParametersInfoW(20, 0, image_path, 0)
+    elif system == "Darwin":  # macOS
+        os.system(f"osascript -e 'tell application \"Finder\" to set desktop picture to POSIX file \"{image_path}\"'")
+    elif system == "Linux":
+        os.system(f"gsettings set org.gnome.desktop.background picture-uri file://{image_path}")
+
+# Function to fetch weather information
+def get_weather():
+    api_key = "YOUR_API_KEY"  # Replace with your OpenWeatherMap API key
+    location = "Dublin,IE"  # Replace with your city
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
+    response = requests.get(url)
+    data = response.json()
+    if response.status_code == 200:
+        return data["weather"][0]["main"].lower()  # e.g., sunny, rainy, snowy
     else:
-        return "Neutral"
+        print("Error fetching weather data.")
+        return "default"
 
-# Function to save a journal entry
-def save_entry(entry, mood):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open("journal.json", "r+") as file:
-        try:
-            data = json.load(file)
-        except json.JSONDecodeError:
-            data = []
-        data.append({"timestamp": timestamp, "entry": entry, "mood": mood})
-        file.seek(0)
-        json.dump(data, file, indent=4)
-
-# Function to view mood trends
-def view_mood_trends():
-    try:
-        with open("journal.json", "r") as file:
-            data = json.load(file)
-        dates = [entry["timestamp"] for entry in data]
-        moods = [entry["mood"] for entry in data]
-        mood_map = {"Positive": 1, "Neutral": 0, "Negative": -1}
-        mood_scores = [mood_map[mood] for mood in moods]
-
-        plt.plot(dates, mood_scores, marker="o")
-        plt.xticks(rotation=45)
-        plt.title("Mood Trends Over Time")
-        plt.ylabel("Mood (Positive: 1, Neutral: 0, Negative: -1)")
-        plt.xlabel("Date")
-        plt.tight_layout()
-        plt.show()
-    except FileNotFoundError:
-        print("No journal entries found. Start journaling today!")
+# Function to get wallpapers by time or weather
+def get_wallpaper_by_theme(theme):
+    wallpaper_directory = "wallpapers"  # Replace with the path to your wallpaper folder
+    theme_folder = os.path.join(wallpaper_directory, theme)
+    if os.path.exists(theme_folder):
+        return random.choice([os.path.join(theme_folder, f) for f in os.listdir(theme_folder) if f.endswith(('.jpg', '.png'))])
+    else:
+        print(f"No wallpapers found for theme: {theme}")
+        return None
 
 # Main function
 def main():
-    print("Welcome to the Daily Journal with Sentiment Analysis!")
+    print("Dynamic Wallpaper Rotator started!")
     while True:
-        print("\nMenu:")
-        print("1. Write a new journal entry")
-        print("2. View mood trends")
-        print("3. Exit")
-        choice = input("Choose an option: ").strip()
-
-        if choice == "1":
-            entry = input("Write your journal entry:\n")
-            mood = analyze_sentiment(entry)
-            save_entry(entry, mood)
-            print(f"Your mood has been analyzed as: {mood}. Entry saved!")
-
-        elif choice == "2":
-            view_mood_trends()
-
-        elif choice == "3":
-            print("Goodbye! Keep journaling!")
-            break
-
+        # Determine theme based on time and weather
+        now = datetime.now()
+        if now.hour < 12:
+            time_theme = "morning"
+        elif 12 <= now.hour < 18:
+            time_theme = "afternoon"
         else:
-            print("Invalid choice. Please try again.")
+            time_theme = "night"
+
+        weather_theme = get_weather()
+        print(f"Time Theme: {time_theme}, Weather Theme: {weather_theme}")
+
+        # Get wallpaper
+        wallpaper = get_wallpaper_by_theme(weather_theme) or get_wallpaper_by_theme(time_theme)
+        if wallpaper:
+            set_wallpaper(wallpaper)
+            print(f"Wallpaper set to: {wallpaper}")
+        else:
+            print("No suitable wallpaper found.")
+
+        time.sleep(3600)  # Change wallpaper every hour
 
 if __name__ == "__main__":
     main()
