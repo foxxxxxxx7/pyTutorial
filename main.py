@@ -1,34 +1,59 @@
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.animation import FuncAnimation
 
-def is_prime(n):
-    if n < 2:
-        return False
-    for i in range(2, int(n**0.5) + 1):
-        if n % i == 0:
-            return False
-    return True
+# Lorenz system parameters
+sigma = 10
+rho = 28
+beta = 8 / 3
 
-def generate_ulam_spiral(size):
-    grid = np.zeros((size, size), dtype=bool)
-    x, y = size // 2, size // 2  # Start in the middle
-    dx, dy = 0, -1
-    for i in range(1, size**2 + 1):
-        if is_prime(i):
-            grid[y, x] = True
-        # Change direction at corners
-        if (x == y or (x > y and x + y == size - 1) or (x < y and x + y == size - 1)):
-            dx, dy = -dy, dx
-        x, y = x + dx, y + dy
-    return grid
+# Time parameters
+dt = 0.01
+num_steps = 5000
 
-def plot_ulam_spiral(grid):
-    plt.figure(figsize=(8, 8))
-    plt.imshow(grid, cmap="binary", interpolation="nearest")
-    plt.axis("off")
-    plt.title("Ulam Spiral of Prime Numbers")
-    plt.show()
+# Initialize arrays
+x = np.empty(num_steps)
+y = np.empty(num_steps)
+z = np.empty(num_steps)
 
-size = 101  # Adjust grid size (odd numbers work best)
-grid = generate_ulam_spiral(size)
-plot_ulam_spiral(grid)
+# Initial conditions
+x[0], y[0], z[0] = (0.1, 0.0, 0.0)
+
+# Solve the Lorenz system
+for i in range(1, num_steps):
+    dx = sigma * (y[i-1] - x[i-1]) * dt
+    dy = (x[i-1] * (rho - z[i-1]) - y[i-1]) * dt
+    dz = (x[i-1] * y[i-1] - beta * z[i-1]) * dt
+    x[i] = x[i-1] + dx
+    y[i] = y[i-1] + dy
+    z[i] = z[i-1] + dz
+
+# Set up the figure
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# Initialize the line
+line, = ax.plot([], [], [], lw=0.5)
+ax.set_xlim(-20, 20)
+ax.set_ylim(-30, 30)
+ax.set_zlim(0, 50)
+
+# Initialize function
+def init():
+    line.set_data([], [])
+    line.set_3d_properties([])
+    return line,
+
+# Update function
+def update(frame):
+    step = 100  # Number of points to show
+    line.set_data(x[frame:frame + step], y[frame:frame + step])
+    line.set_3d_properties(z[frame:frame + step])
+    return line,
+
+# Animate
+ani = FuncAnimation(fig, update, frames=range(0, num_steps - 100, 10), init_func=init, blit=True)
+
+# Display the animation
+plt.show()
