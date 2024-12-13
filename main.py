@@ -1,59 +1,53 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.animation import FuncAnimation
+import turtle
 
-# Lorenz system parameters
-sigma = 10
-rho = 28
-beta = 8 / 3
+def draw_branch(t, branch_length, angle, depth):
+    """
+    Recursively draws a fractal tree.
 
-# Time parameters
-dt = 0.01
-num_steps = 5000
+    Parameters:
+    t (Turtle): The turtle object.
+    branch_length (int): Length of the current branch.
+    angle (int): Angle between branches.
+    depth (int): Current recursion depth.
+    """
+    if depth == 0:
+        return
 
-# Initialize arrays
-x = np.empty(num_steps)
-y = np.empty(num_steps)
-z = np.empty(num_steps)
+    # Draw the main branch
+    t.forward(branch_length)
 
-# Initial conditions
-x[0], y[0], z[0] = (0.1, 0.0, 0.0)
+    # Draw the left subtree
+    t.left(angle)
+    draw_branch(t, branch_length * 0.7, angle, depth - 1)
+    t.right(angle * 2)
 
-# Solve the Lorenz system
-for i in range(1, num_steps):
-    dx = sigma * (y[i-1] - x[i-1]) * dt
-    dy = (x[i-1] * (rho - z[i-1]) - y[i-1]) * dt
-    dz = (x[i-1] * y[i-1] - beta * z[i-1]) * dt
-    x[i] = x[i-1] + dx
-    y[i] = y[i-1] + dy
-    z[i] = z[i-1] + dz
+    # Draw the right subtree
+    draw_branch(t, branch_length * 0.7, angle, depth - 1)
+    t.left(angle)
 
-# Set up the figure
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+    # Go back to the original position
+    t.backward(branch_length)
 
-# Initialize the line
-line, = ax.plot([], [], [], lw=0.5)
-ax.set_xlim(-20, 20)
-ax.set_ylim(-30, 30)
-ax.set_zlim(0, 50)
+# Set up the turtle
+screen = turtle.Screen()
+screen.bgcolor("white")
+screen.title("Fractal Tree")
 
-# Initialize function
-def init():
-    line.set_data([], [])
-    line.set_3d_properties([])
-    return line,
+tree = turtle.Turtle()
+tree.hideturtle()
+tree.speed(0)  # Fastest speed
+tree.left(90)  # Start pointing upwards
+tree.penup()
+tree.goto(0, -200)  # Move to the starting position
+tree.pendown()
 
-# Update function
-def update(frame):
-    step = 100  # Number of points to show
-    line.set_data(x[frame:frame + step], y[frame:frame + step])
-    line.set_3d_properties(z[frame:frame + step])
-    return line,
+# Parameters for the fractal tree
+initial_branch_length = 100
+branch_angle = 30
+recursion_depth = 8
 
-# Animate
-ani = FuncAnimation(fig, update, frames=range(0, num_steps - 100, 10), init_func=init, blit=True)
+# Draw the fractal tree
+draw_branch(tree, initial_branch_length, branch_angle, recursion_depth)
 
-# Display the animation
-plt.show()
+# Keep the screen open
+screen.mainloop()
