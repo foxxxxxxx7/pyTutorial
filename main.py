@@ -1,60 +1,92 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.animation import FuncAnimation
+import random
 
-def initialize_grid(size, random_fill=True):
+
+def generate_maze(size, fortune):
     """
-    Initializes the grid with a specified size.
-    If random_fill is True, randomize the grid; otherwise, create an empty grid.
+    Generates a square maze of given size with walls (#), empty spaces ( ),
+    and a fortune (F) hidden in one of the empty spaces.
     """
-    if random_fill:
-        return np.random.choice([0, 1], size=(size, size))
-    return np.zeros((size, size), dtype=int)
+    maze = [["#" for _ in range(size)] for _ in range(size)]
 
-def update_grid(grid, ruleset):
+    # Create random paths
+    for _ in range(size * size // 2):  # Approx. 50% open paths
+        x, y = random.randint(1, size - 2), random.randint(1, size - 2)
+        maze[x][y] = " "
+
+    # Add the fortune to a random empty space
+    while True:
+        fx, fy = random.randint(1, size - 2), random.randint(1, size - 2)
+        if maze[fx][fy] == " ":
+            maze[fx][fy] = "F"
+            break
+
+    return maze, (fx, fy)
+
+
+def print_maze(maze, player_pos):
     """
-    Updates the grid based on user-defined ruleset.
-    - A ruleset is a function that defines the next state of a cell.
+    Displays the maze in the terminal with the player's position (P).
     """
-    new_grid = grid.copy()
-    for x in range(grid.shape[0]):
-        for y in range(grid.shape[1]):
-            neighbors = grid[max(x-1, 0):x+2, max(y-1, 0):y+2]
-            new_grid[x, y] = ruleset(grid[x, y], neighbors.sum() - grid[x, y])
-    return new_grid
+    for i, row in enumerate(maze):
+        for j, cell in enumerate(row):
+            if (i, j) == player_pos:
+                print("P", end="")
+            else:
+                print(cell, end="")
+        print()
 
-def game_of_life_rules(current_state, live_neighbors):
+
+def move_player(maze, player_pos, direction):
     """
-    Classic Conway's Game of Life ruleset.
+    Moves the player in the maze if the move is valid.
     """
-    if current_state == 1 and live_neighbors in (2, 3):
-        return 1
-    elif current_state == 0 and live_neighbors == 3:
-        return 1
-    return 0
+    x, y = player_pos
+    if direction == "w":  # Up
+        new_pos = (x - 1, y)
+    elif direction == "s":  # Down
+        new_pos = (x + 1, y)
+    elif direction == "a":  # Left
+        new_pos = (x, y - 1)
+    elif direction == "d":  # Right
+        new_pos = (x, y + 1)
+    else:
+        return player_pos, "Invalid direction!"
 
-# Simulation parameters
-grid_size = 50
-frames = 100
-interval = 100  # milliseconds
+    nx, ny = new_pos
+    if maze[nx][ny] == "#":
+        return player_pos, "You hit a wall!"
+    return new_pos, "Moved!"
 
-# Initialize the grid
-grid = initialize_grid(grid_size, random_fill=True)
 
-# Set up the plot
-fig, ax = plt.subplots()
-im = ax.imshow(grid, cmap="binary")
-ax.axis('off')
+def play_maze_game():
+    """
+    Main function to play the maze game.
+    """
+    size = 10  # Maze size
+    fortune = "You will achieve greatness!"  # The hidden message
+    maze, fortune_pos = generate_maze(size, fortune)
 
-def animate(frame):
-    global grid
-    grid = update_grid(grid, game_of_life_rules)
-    im.set_array(grid)
-    return [im]
+    player_pos = (1, 1)  # Starting position
+    maze[1][1] = " "  # Ensure the starting position is open
 
-# Create the animation
-ani = FuncAnimation(fig, animate, frames=frames, interval=interval, blit=True)
+    print("Welcome to the Fortune Maze!")
+    print("Navigate using 'w', 'a', 's', 'd' to find your hidden fortune!")
+    print("Type 'quit' to exit.\n")
 
-# Display the animation
-plt.title("Cellular Automaton Simulator")
-plt.show()
+    while player_pos != fortune_pos:
+        print_maze(maze, player_pos)
+        move = input("Your move: ").strip().lower()
+        if move == "quit":
+            print("Thanks for playing!")
+            break
+        player_pos, message = move_player(maze, player_pos, move)
+        print(message)
+
+    if player_pos == fortune_pos:
+        print("\nCongratulations! You've found the fortune:")
+        print(f"-> {fortune} <-")
+        print("\nGame Over!")
+
+
+# Start the game
+play_maze_game()
