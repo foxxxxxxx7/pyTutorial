@@ -1,36 +1,73 @@
-import random
+import math
 
-# Word banks
-nouns = ["ocean", "dream", "shadow", "mountain", "whisper", "star", "river", "time", "forest", "flame"]
-verbs = ["dances", "sings", "melts", "rises", "falls", "flows", "hides", "wanders", "shines", "drifts"]
-adjectives = ["silent", "eternal", "hidden", "golden", "shimmering", "forgotten", "lonely", "wild", "broken", "ancient"]
-prepositions = ["beneath", "above", "within", "beyond", "around", "through"]
-articles = ["the", "a"]
 
-# Poem structure templates
-templates = [
-    "{article} {adjective} {noun} {verb} {preposition} {article} {adjective} {noun}.",
-    "{article} {noun} {verb}, {article} {adjective} {noun} {verb} {preposition} {article} {noun}.",
-    "{adjective} {nouns}, {adjective} {nouns}, {verb} {preposition} {article} {noun}.",
-    "Oh, {adjective} {noun}, how you {verb} {preposition} {article} {adjective} {noun}.",
-]
+def is_prime(num):
+    """Check if a number is a prime."""
+    if num <= 1:
+        return False
+    for i in range(2, int(math.sqrt(num)) + 1):
+        if num % i == 0:
+            return False
+    return True
 
-def generate_line():
-    """Generates a random line of poetry."""
-    template = random.choice(templates)
-    return template.format(
-        article=random.choice(articles),
-        adjective=random.choice(adjectives),
-        noun=random.choice(nouns),
-        nouns=random.choice(nouns) + "s",  # Plural form
-        verb=random.choice(verbs),
-        preposition=random.choice(prepositions),
-    )
 
-def generate_poem(lines=4):
-    """Generates a poem with a specified number of lines."""
-    return "\n".join(generate_line() for _ in range(lines))
+def next_prime(start):
+    """Find the next prime number greater than a given start."""
+    num = start + 1
+    while not is_prime(num):
+        num += 1
+    return num
 
-# Generate and print a poem
-print("Here is your random poem:\n")
-print(generate_poem())
+
+def primes_up_to(limit):
+    """Generate all primes up to a given limit."""
+    return [num for num in range(2, limit + 1) if is_prime(num)]
+
+
+def interactive_menu():
+    """Interactive prime number explorer."""
+    print("=== Prime Number Explorer ===")
+    print("Choose an option:")
+    print("1. Check if a number is prime")
+    print("2. Find the next prime after a number")
+    print("3. List all primes up to a number")
+    print("4. Exit")
+
+    while True:
+        choice = input("\nEnter your choice (1-4): ")
+
+        if choice == "1":
+            try:
+                num = int(input("Enter a number to check: "))
+                if is_prime(num):
+                    print(f"{num} is a prime number!")
+                else:
+                    print(f"{num} is not a prime number.")
+            except ValueError:
+                print("Please enter a valid number.")
+
+        elif choice == "2":
+            try:
+                num = int(input("Enter a number to find the next prime after it: "))
+                print(f"The next prime after {num} is {next_prime(num)}.")
+            except ValueError:
+                print("Please enter a valid number.")
+
+        elif choice == "3":
+            try:
+                limit = int(input("Enter an upper limit: "))
+                primes = primes_up_to(limit)
+                print(f"Primes up to {limit}: {primes}")
+            except ValueError:
+                print("Please enter a valid number.")
+
+        elif choice == "4":
+            print("Goodbye!")
+            break
+
+        else:
+            print("Invalid choice, please select a valid option.")
+
+
+# Run the explorer
+interactive_menu()
