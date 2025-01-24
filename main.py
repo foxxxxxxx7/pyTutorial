@@ -1,53 +1,71 @@
 import random
-import matplotlib.pyplot as plt
-import numpy as np
 
 
-def random_walk_simulation(grid_size=20, steps=1000, initial_life=100, food_probability=0.02):
-    # Initialize the grid and variables
-    grid = np.zeros((grid_size, grid_size), dtype=int)
-    x, y = grid_size // 2, grid_size // 2  # Start in the center
-    life = initial_life
-    path = [(x, y)]
+def generate_room_name():
+    adjectives = ["Dark", "Misty", "Enchanted", "Ancient", "Echoing"]
+    nouns = ["Cave", "Forest", "Chamber", "Corridor", "Vault"]
+    return f"{random.choice(adjectives)} {random.choice(nouns)}"
 
-    # Generate random "food" on the grid
-    for _ in range(int(grid_size * grid_size * food_probability)):
-        fx, fy = random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)
-        grid[fx, fy] = 1  # 1 represents food
 
-    # Simulate random walk
-    for _ in range(steps):
-        if life <= 0:
+def generate_room_description():
+    descriptions = [
+        "You hear the distant drip of water echoing through the air.",
+        "The walls are covered in glowing moss, casting a faint light.",
+        "An eerie silence fills the room, broken only by your footsteps.",
+        "You feel a chilling breeze that seems to come from nowhere.",
+        "The room smells of damp earth and forgotten memories."
+    ]
+    return random.choice(descriptions)
+
+
+def generate_directions():
+    directions = ["north", "south", "east", "west"]
+    random.shuffle(directions)
+    return directions[:random.randint(2, 4)]
+
+
+def generate_adventure():
+    num_rooms = random.randint(5, 10)
+    rooms = {}
+
+    for i in range(1, num_rooms + 1):
+        room_name = generate_room_name()
+        room_desc = generate_room_description()
+        room_exits = generate_directions()
+        rooms[i] = {"name": room_name, "description": room_desc, "exits": room_exits}
+
+    return rooms
+
+
+def play_adventure(rooms):
+    current_room = 1
+    visited = set()
+
+    print("Welcome to your adventure! Type 'quit' to exit.\n")
+
+    while True:
+        room = rooms[current_room]
+        print(f"You are in the {room['name']}.")
+        print(room["description"])
+        print("Exits:", ", ".join(room["exits"]))
+
+        visited.add(current_room)
+        choice = input("Which direction would you like to go? ").strip().lower()
+
+        if choice == "quit":
+            print("Thanks for playing!")
             break
-
-        # Random step: up, down, left, or right
-        dx, dy = random.choice([(0, 1), (0, -1), (1, 0), (-1, 0)])
-        x, y = (x + dx) % grid_size, (y + dy) % grid_size  # Wrap around edges
-        path.append((x, y))
-
-        # Check if the particle lands on food
-        if grid[x, y] == 1:
-            life += 20  # Replenish life
-            grid[x, y] = 0  # Food is consumed
+        elif choice in room["exits"]:
+            # Randomly decide the next room (arbitrary for simplicity)
+            next_room = random.choice(list(rooms.keys()))
+            while next_room == current_room or next_room in visited:
+                next_room = random.choice(list(rooms.keys()))
+            current_room = next_room
         else:
-            life -= 1  # Decrease life
-
-    return path, grid
-
-
-def plot_random_walk(path, grid):
-    grid_size = grid.shape[0]
-    path_x, path_y = zip(*path)
-
-    plt.figure(figsize=(8, 8))
-    plt.imshow(grid, cmap='Greens', extent=(0, grid_size, 0, grid_size))
-    plt.plot(path_x, path_y, color='blue', linewidth=1, label='Path')
-    plt.scatter(path_x[-1], path_y[-1], color='red', label='End Point')
-    plt.title("Random Walk Simulation")
-    plt.legend()
-    plt.show()
+            print("You can't go that way!")
+        print()
 
 
-# Run the simulation
-path, grid = random_walk_simulation(grid_size=30, steps=500, initial_life=200, food_probability=0.05)
-plot_random_walk(path, grid)
+# Generate and play the adventure
+adventure_rooms = generate_adventure()
+play_adventure(adventure_rooms)
